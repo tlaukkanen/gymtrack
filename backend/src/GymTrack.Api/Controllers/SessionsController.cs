@@ -19,6 +19,28 @@ public class SessionsController : ControllerBase
         _sessionService = sessionService;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<PagedResult<WorkoutSessionSummaryDto>>> ListSessions([FromQuery] SessionListRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            var query = new SessionListQuery(
+                request.Page,
+                request.PageSize,
+                request.Status,
+                request.StartedFrom,
+                request.StartedTo,
+                request.Search);
+            var result = await _sessionService.ListSessionsAsync(userId, query, cancellationToken);
+            return Ok(result);
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("~/api/programs/{programId:guid}/sessions")]
     public async Task<ActionResult<WorkoutSessionDto>> StartSession(Guid programId, StartWorkoutSessionRequest request, CancellationToken cancellationToken)
     {

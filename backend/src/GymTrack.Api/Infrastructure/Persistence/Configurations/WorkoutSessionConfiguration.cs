@@ -15,5 +15,8 @@ public class WorkoutSessionConfiguration : IEntityTypeConfiguration<WorkoutSessi
             .WithOne(x => x.WorkoutSession)
             .HasForeignKey(x => x.WorkoutSessionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(x => new { x.UserId, x.StartedAt });
+        builder.HasIndex(x => new { x.UserId, x.CompletedAt });
     }
 }

@@ -7,6 +7,8 @@ import type {
   LoginRequest,
   ReorderSessionExercisesRequest,
   RegisterRequest,
+  SessionListRequest,
+  PagedResult,
   UpdateSessionSetRequest,
   UpdateSessionExerciseRequest,
   UpdateUserPreferenceRequest,
@@ -14,6 +16,7 @@ import type {
   WorkoutProgramDetailDto,
   WorkoutProgramSummaryDto,
   WorkoutSessionDto,
+  WorkoutSessionSummaryDto,
   ExerciseDto,
   UserPreferenceDto,
   StartWorkoutSessionRequest,
@@ -37,6 +40,8 @@ export const programsApi = {
 }
 
 export const sessionsApi = {
+  list: (params?: SessionListRequest) =>
+    apiClient.get<PagedResult<WorkoutSessionSummaryDto>>('/sessions', { params }).then((res) => res.data),
   start: (programId: string, payload: StartWorkoutSessionRequest) =>
     apiClient.post<WorkoutSessionDto>(`/programs/${programId}/sessions`, payload).then((res) => res.data),
   detail: (sessionId: string) => apiClient.get<WorkoutSessionDto>(`/sessions/${sessionId}`).then((res) => res.data),

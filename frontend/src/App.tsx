@@ -4,6 +4,7 @@ import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/dashboard/DashboardPage'
 import ProgramBuilderPage from './pages/programs/ProgramBuilderPage'
 import SessionRunnerPage from './pages/sessions/SessionRunnerPage'
+import TrainingDiaryPage from './pages/sessions/TrainingDiaryPage'
 import ProfilePage from './pages/profile/ProfilePage'
 import AppLayout from './components/layout/AppLayout'
 import { ProtectedRoute } from './components/layout/ProtectedRoute'
@@ -42,7 +43,10 @@ const App = () => {
           <Route path="new" element={<ProgramBuilderPage />} />
           <Route path=":programId/edit" element={<ProgramBuilderPage />} />
         </Route>
-        <Route path="sessions/:sessionId" element={<SessionRunnerPage />} />
+        <Route path="sessions">
+          <Route index element={<TrainingDiaryPage />} />
+          <Route path=":sessionId" element={<SessionRunnerPage />} />
+        </Route>
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />

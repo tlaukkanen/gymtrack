@@ -1,9 +1,10 @@
 import type { IconBaseProps } from 'react-icons'
-import { FiActivity, FiLayers, FiLogOut, FiUser, FiSettings } from 'react-icons/fi'
+import { FiActivity, FiBookOpen, FiLayers, FiLogOut, FiUser, FiSettings } from 'react-icons/fi'
 
 export const iconRegistry = {
   dashboard: FiActivity,
   programs: FiLayers,
+  diary: FiBookOpen,
   profile: FiUser,
   logout: FiLogOut,
   settings: FiSettings,

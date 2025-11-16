@@ -36,6 +36,19 @@ public record WorkoutSessionDto(
     IReadOnlyCollection<WorkoutSessionExerciseDto> Exercises
 );
 
+public record WorkoutSessionSummaryDto(
+    Guid Id,
+    Guid ProgramId,
+    string ProgramName,
+    DateTimeOffset StartedAt,
+    DateTimeOffset? CompletedAt,
+    TimeSpan Duration,
+    int ExerciseCount,
+    int LoggedSetCount,
+    int TotalSetCount,
+    DateTimeOffset LastUpdatedAt
+);
+
 public record UpdateSessionSetRequest(
     decimal? ActualWeight,
     int? ActualReps,
@@ -72,3 +85,36 @@ public record AddSessionSetRequest(
     int? PlannedReps,
     int? PlannedDurationSeconds
 );
+
+public enum SessionListStatus
+{
+    All,
+    InProgress,
+    Completed
+}
+
+public record SessionListQuery(
+    int Page,
+    int PageSize,
+    SessionListStatus Status,
+    DateTimeOffset? StartedFrom,
+    DateTimeOffset? StartedTo,
+    string? Search
+);
+
+public record PagedResult<T>(
+    IReadOnlyCollection<T> Items,
+    int Page,
+    int PageSize,
+    int TotalCount
+);
+
+public sealed class SessionListRequest
+{
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 20;
+    public SessionListStatus Status { get; set; } = SessionListStatus.All;
+    public DateTimeOffset? StartedFrom { get; set; }
+    public DateTimeOffset? StartedTo { get; set; }
+    public string? Search { get; set; }
+}

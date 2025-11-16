@@ -101,6 +101,70 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         return MapSession(session);
     }
 
+    public async Task<PagedResult<WorkoutSessionSummaryDto>> ListSessionsAsync(Guid userId, SessionListQuery query, CancellationToken cancellationToken = default)
+    {
+        if (query.StartedFrom.HasValue && query.StartedTo.HasValue && query.StartedFrom > query.StartedTo)
+        {
+            throw new ValidationException("startedFrom must be before startedTo.");
+        }
+
+        var page = Math.Max(1, query.Page);
+        var pageSize = Math.Clamp(query.PageSize, 5, 50);
+        var now = _clock.UtcNow;
+        var baseQuery = _dbContext.WorkoutSessions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId);
+
+        baseQuery = query.Status switch
+        {
+            SessionListStatus.InProgress => baseQuery.Where(s => s.CompletedAt == null),
+            SessionListStatus.Completed => baseQuery.Where(s => s.CompletedAt != null),
+            _ => baseQuery
+        };
+
+        if (query.StartedFrom.HasValue)
+        {
+            baseQuery = baseQuery.Where(s => s.StartedAt >= query.StartedFrom.Value);
+        }
+
+        if (query.StartedTo.HasValue)
+        {
+            baseQuery = baseQuery.Where(s => s.StartedAt <= query.StartedTo.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = $"%{query.Search.Trim()}%";
+            baseQuery = baseQuery.Where(s =>
+                EF.Functions.Like(s.WorkoutProgram.Name, search) ||
+                EF.Functions.Like(s.Notes ?? string.Empty, search));
+        }
+
+        var totalCount = await baseQuery.CountAsync(cancellationToken);
+
+        var results = await baseQuery
+            .OrderByDescending(s => s.StartedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(s => new WorkoutSessionSummaryDto(
+                s.Id,
+                s.WorkoutProgramId,
+                s.WorkoutProgram.Name,
+                s.StartedAt,
+                s.CompletedAt,
+                (s.CompletedAt ?? s.UpdatedAt ?? now) - s.StartedAt,
+                s.Exercises.Count,
+                s.Exercises.SelectMany(e => e.Sets).Count(set =>
+                    set.ActualDurationSeconds.HasValue ||
+                    set.ActualReps.HasValue ||
+                    set.ActualWeight.HasValue),
+                s.Exercises.SelectMany(e => e.Sets).Count(),
+                s.CompletedAt ?? s.UpdatedAt ?? s.StartedAt))
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<WorkoutSessionSummaryDto>(results, page, pageSize, totalCount);
+    }
+
     public async Task<WorkoutSessionDto> UpdateSetAsync(Guid userId, Guid sessionId, Guid setId, UpdateSessionSetRequest request, CancellationToken cancellationToken = default)
     {
         var set = await _dbContext.WorkoutSessionSets

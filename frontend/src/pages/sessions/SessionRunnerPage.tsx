@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -27,8 +27,6 @@ import { useToast } from '../../components/feedback/ToastProvider'
 import { exerciseApi, sessionsApi } from '../../api/requests'
 import type {
   AddSessionExerciseRequest,
-  ExerciseDto,
-  WorkoutSessionDto,
   WorkoutSessionExerciseDto,
   WorkoutSessionSetDto,
 } from '../../types/api'

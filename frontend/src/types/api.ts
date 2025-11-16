@@ -108,6 +108,37 @@ export interface WorkoutSessionDto {
   exercises: WorkoutSessionExerciseDto[]
 }
 
+export interface WorkoutSessionSummaryDto {
+  id: string
+  programId: string
+  programName: string
+  startedAt: string
+  completedAt?: string | null
+  duration: string
+  exerciseCount: number
+  loggedSetCount: number
+  totalSetCount: number
+  lastUpdatedAt: string
+}
+
+export type SessionListStatus = 'All' | 'InProgress' | 'Completed'
+
+export interface SessionListRequest {
+  page?: number
+  pageSize?: number
+  status?: SessionListStatus
+  startedFrom?: string
+  startedTo?: string
+  search?: string
+}
+
+export interface PagedResult<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  totalCount: number
+}
+
 export interface StartWorkoutSessionRequest {
   notes?: string | null
 }
