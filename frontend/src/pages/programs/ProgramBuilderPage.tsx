@@ -23,24 +23,42 @@ interface BuilderSet {
   isWarmup: boolean
 }
 
+type NormalizedCategory = 'Strength' | 'Cardio'
+
 interface BuilderExercise {
   key: string
   sourceId?: string | null
   exerciseId: string
   exerciseName: string
-  category: ExerciseDto['category']
+  category: NormalizedCategory
   restSeconds: number
   notes?: string
   sets: BuilderSet[]
 }
 
-const createSet = (category: ExerciseDto['category']): BuilderSet => ({
+const normalizeCategory = (category?: ExerciseDto['category']): NormalizedCategory => {
+  if (category === 'Cardio' || category === 1) return 'Cardio'
+  return 'Strength'
+}
+
+const createSet = (category: NormalizedCategory): BuilderSet => ({
   key: crypto.randomUUID(),
   targetWeight: category === 'Strength' ? 0 : '',
   targetReps: category === 'Strength' ? 8 : '',
   targetDurationSeconds: category === 'Cardio' ? 60 : '',
   isWarmup: false,
 })
+
+const cloneFromPreviousSet = (category: NormalizedCategory, previous?: BuilderSet): BuilderSet => {
+  if (!previous) return createSet(category)
+  return {
+    key: crypto.randomUUID(),
+    targetWeight: previous.targetWeight,
+    targetReps: previous.targetReps,
+    targetDurationSeconds: previous.targetDurationSeconds,
+    isWarmup: previous.isWarmup,
+  }
+}
 
 const resolveEngagementLabel = (level: ExerciseMuscleEngagementDto['level']): 'No' | 'Some' | 'Yes' => {
   if (typeof level === 'string') {
@@ -100,12 +118,13 @@ const ProgramBuilderPage = () => {
     setValue('description', program.description ?? '')
     const mapped: BuilderExercise[] = program.exercises.map((exercise) => {
       const sourceExercise = exerciseCatalog.find((x) => x.id === exercise.exerciseId)
+      const category = normalizeCategory(sourceExercise?.category)
       return {
         key: crypto.randomUUID(),
         sourceId: exercise.id ?? undefined,
         exerciseId: exercise.exerciseId,
         exerciseName: sourceExercise?.name ?? 'Exercise',
-        category: sourceExercise?.category ?? 'Strength',
+        category,
         restSeconds: exercise.restSeconds,
         notes: exercise.notes ?? '',
         sets: exercise.sets.map((set) => ({
@@ -122,14 +141,15 @@ const ProgramBuilderPage = () => {
   }
 
   const addExercise = (exercise: ExerciseDto) => {
+    const category = normalizeCategory(exercise.category)
     const entity: BuilderExercise = {
       key: crypto.randomUUID(),
       exerciseId: exercise.id,
       exerciseName: exercise.name,
-      category: exercise.category,
+      category,
       restSeconds: exercise.defaultRestSeconds,
       notes: '',
-      sets: [createSet(exercise.category)],
+      sets: [createSet(category)],
     }
     setBuilderExercises((prev) => [...prev, entity])
   }
@@ -156,7 +176,9 @@ const ProgramBuilderPage = () => {
   const addSet = (exerciseKey: string) => {
     const exercise = builderExercises.find((x) => x.key === exerciseKey)
     if (!exercise) return
-    updateExercise(exerciseKey, (entity) => ({ ...entity, sets: [...entity.sets, createSet(entity.category)] }))
+    const previous = exercise.sets[exercise.sets.length - 1]
+    const nextSet = cloneFromPreviousSet(exercise.category, previous)
+    updateExercise(exerciseKey, (entity) => ({ ...entity, sets: [...entity.sets, nextSet] }))
   }
 
   const updateSet = (exerciseKey: string, setKey: string, updater: (set: BuilderSet) => BuilderSet) => {

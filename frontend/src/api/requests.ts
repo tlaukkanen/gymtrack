@@ -1,10 +1,14 @@
 import { apiClient } from './client'
 import type {
   AuthResponse,
+  AddSessionExerciseRequest,
+  AddSessionSetRequest,
   CreateWorkoutProgramRequest,
   LoginRequest,
+  ReorderSessionExercisesRequest,
   RegisterRequest,
   UpdateSessionSetRequest,
+  UpdateSessionExerciseRequest,
   UpdateUserPreferenceRequest,
   UpdateWorkoutProgramRequest,
   WorkoutProgramDetailDto,
@@ -39,6 +43,20 @@ export const sessionsApi = {
   updateSet: (sessionId: string, setId: string, payload: UpdateSessionSetRequest) =>
     apiClient.patch<WorkoutSessionDto>(`/sessions/${sessionId}/sets/${setId}`, payload).then((res) => res.data),
   complete: (sessionId: string) => apiClient.post<WorkoutSessionDto>(`/sessions/${sessionId}/complete`, {}).then((res) => res.data),
+  addExercise: (sessionId: string, payload: AddSessionExerciseRequest) =>
+    apiClient.post<WorkoutSessionDto>(`/sessions/${sessionId}/exercises`, payload).then((res) => res.data),
+  removeExercise: (sessionId: string, sessionExerciseId: string) =>
+    apiClient.delete<WorkoutSessionDto>(`/sessions/${sessionId}/exercises/${sessionExerciseId}`).then((res) => res.data),
+  reorderExercises: (sessionId: string, payload: ReorderSessionExercisesRequest) =>
+    apiClient.patch<WorkoutSessionDto>(`/sessions/${sessionId}/exercises/order`, payload).then((res) => res.data),
+  updateExercise: (sessionId: string, sessionExerciseId: string, payload: UpdateSessionExerciseRequest) =>
+    apiClient.patch<WorkoutSessionDto>(`/sessions/${sessionId}/exercises/${sessionExerciseId}`, payload).then((res) => res.data),
+  addSet: (sessionId: string, sessionExerciseId: string, payload: AddSessionSetRequest) =>
+    apiClient
+      .post<WorkoutSessionDto>(`/sessions/${sessionId}/exercises/${sessionExerciseId}/sets`, payload)
+      .then((res) => res.data),
+  removeSet: (sessionId: string, setId: string) =>
+    apiClient.delete<WorkoutSessionDto>(`/sessions/${sessionId}/sets/${setId}`).then((res) => res.data),
 }
 
 export const profileApi = {

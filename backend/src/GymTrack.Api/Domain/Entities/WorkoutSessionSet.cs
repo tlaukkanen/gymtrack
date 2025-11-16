@@ -13,4 +13,5 @@ public class WorkoutSessionSet : AuditableEntity
     public decimal? ActualWeight { get; set; }
     public int? ActualReps { get; set; }
     public int? ActualDurationSeconds { get; set; }
+    public bool IsUserAdded { get; set; }
 }

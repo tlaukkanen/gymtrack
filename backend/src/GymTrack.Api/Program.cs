@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using GymTrack.Infrastructure.Extensions;
 using GymTrack.Infrastructure.Persistence;
 using GymTrack.Infrastructure.Seed;
@@ -16,7 +17,11 @@ builder.Host.UseSerilog((context, services, configuration) =>
 });
 
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>

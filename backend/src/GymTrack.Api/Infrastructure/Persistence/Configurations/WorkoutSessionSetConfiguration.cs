@@ -12,5 +12,6 @@ public class WorkoutSessionSetConfiguration : IEntityTypeConfiguration<WorkoutSe
         builder.HasKey(x => x.Id);
         builder.Property(x => x.PlannedWeight).HasColumnType("decimal(10,2)");
         builder.Property(x => x.ActualWeight).HasColumnType("decimal(10,2)");
+        builder.Property(x => x.IsUserAdded).HasDefaultValue(false);
     }
 }

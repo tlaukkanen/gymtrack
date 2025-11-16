@@ -21,7 +21,7 @@ export interface ExerciseMuscleEngagementDto {
   level: MuscleEngagementLevel
 }
 
-export type ExerciseCategory = 'Strength' | 'Cardio'
+export type ExerciseCategory = 'Strength' | 'Cardio' | 0 | 1
 
 export interface ExerciseDto {
   id: string
@@ -83,12 +83,17 @@ export interface WorkoutSessionSetDto {
   actualWeight?: number | null
   actualReps?: number | null
   actualDurationSeconds?: number | null
+  isUserAdded: boolean
 }
 
 export interface WorkoutSessionExerciseDto {
   id: string
-  exerciseId: string
+  exerciseId?: string | null
   exerciseName: string
+  customExerciseName?: string | null
+  isAdHoc: boolean
+  isCatalogExercise: boolean
+  notes?: string | null
   orderPerformed: number
   restSeconds: number
   sets: WorkoutSessionSetDto[]
@@ -111,6 +116,37 @@ export interface UpdateSessionSetRequest {
   actualWeight?: number | null
   actualReps?: number | null
   actualDurationSeconds?: number | null
+}
+
+export interface AddSessionExerciseSetDto {
+  plannedWeight?: number | null
+  plannedReps?: number | null
+  plannedDurationSeconds?: number | null
+}
+
+export interface AddSessionExerciseRequest {
+  exerciseId?: string | null
+  customExerciseName?: string | null
+  customCategory?: string | null
+  customPrimaryMuscle?: string | null
+  notes?: string | null
+  restSeconds: number
+  sets?: AddSessionExerciseSetDto[] | null
+}
+
+export interface UpdateSessionExerciseRequest {
+  notes?: string | null
+  restSeconds?: number | null
+}
+
+export interface ReorderSessionExercisesRequest {
+  orderedExerciseIds: string[]
+}
+
+export interface AddSessionSetRequest {
+  plannedWeight?: number | null
+  plannedReps?: number | null
+  plannedDurationSeconds?: number | null
 }
 
 export interface UserPreferenceDto {

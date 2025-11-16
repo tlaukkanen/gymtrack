@@ -34,7 +34,7 @@ export const Button = ({ variant = 'primary', className, sx: sxProp, ...props }:
   const config = variantConfig[variant]
   const mergedSx = [
     {
-      borderRadius: 2,
+      borderRadius: 1,
       fontWeight: 600,
     },
     ...(config.sx ? [config.sx] : []),
