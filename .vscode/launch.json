@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Backend API",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/src/GymTrack.Api/bin/Debug/net9.0/GymTrack.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend/src/GymTrack.Api",
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "stopAtEntry": false,
+      "justMyCode": true
+    },
+    {
+      "name": "Launch Vite Frontend",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "preLaunchTask": "frontend: dev"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch App (API + Web)",
+      "configurations": [
+        "Launch Backend API",
+        "Launch Vite Frontend"
+      ]
+    }
+  ]
+}

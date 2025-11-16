@@ -1,0 +1,38 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_strong_password123" # change for real usage
+    ports:
+      - "1433:1433" # host:container
+    # healthcheck:
+    #   test: ["CMD", "bash", "-c", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SA_PASSWORD -Q 'SELECT 1' || exit 1"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 10
+    volumes:
+      - mssqldata:/var/opt/mssql
+
+  gymtrack:
+    build: .
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      JWT_SECRET: change-me-please
+      AOAI_ENDPOINT: https://oai-droid-sweden.openai.azure.com/
+      AOAI_API_KEY: ${AOAI_API_KEY}
+      AOAI_DEPLOYMENT: ${AOAI_DEPLOYMENT}
+      DB_HOST: sqlserver
+      DB_NAME: GymTrack
+      DB_USER: sa
+      DB_PASSWORD: Your_strong_password123
+      INVITE_CODE: devinvite
+    depends_on:
+      - sqlserver
+    volumes:
+      - ./photos:/app/photos
+    ports:
+      - "5087:8080" # API/SPA
+
+volumes:
+  mssqldata:
