@@ -1,4 +1,5 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { Button } from '../ui/Button'
 import { useAuthStore, selectAuthControls } from '../../store/auth-store'
@@ -13,16 +14,42 @@ const navItems: Array<{ to: string; label: string; icon: IconName }> = [
 
 const AppLayout = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, clearAuth } = useAuthStore(selectAuthControls)
+  const [isSidebarOpen, setSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return
+    }
+
+    document.body.style.overflow = isSidebarOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isSidebarOpen])
 
   const handleLogout = () => {
     clearAuth()
     navigate('/login')
   }
 
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev)
+  const closeSidebar = () => setSidebarOpen(false)
+
   return (
     <div className="app-shell bg-surface-darkest text-text-primary">
-      <aside className="sidebar rounded-r-3xl border border-white/10 bg-surface/90 shadow-card backdrop-blur">
+      <aside
+        id="app-sidebar"
+        className={clsx(
+          'sidebar border border-white/10 bg-surface/90 shadow-card backdrop-blur',
+          isSidebarOpen && 'sidebar-open'
+        )}
+      >
         <h1>GymTrack</h1>
         <p>Train intentionally, capture every rep.</p>
         <div className="nav-links">
@@ -58,8 +85,26 @@ const AppLayout = () => {
         </div>
       </aside>
       <main className="main-content bg-gradient-to-b from-surface-darkest via-surface to-surface-darkest/80">
+        <div className="mobile-top-bar">
+          <button
+            type="button"
+            className="mobile-nav-trigger"
+            onClick={toggleSidebar}
+            aria-controls="app-sidebar"
+            aria-expanded={isSidebarOpen}
+          >
+            <Icon name={isSidebarOpen ? 'close' : 'menu'} size={20} />
+            <span>{isSidebarOpen ? 'Close' : 'Menu'}</span>
+          </button>
+          <p className="mobile-top-bar__user">{user?.displayName ?? 'Athlete'}</p>
+        </div>
         <Outlet />
       </main>
+      <div
+        className={clsx('sidebar-overlay', isSidebarOpen && 'visible')}
+        role="presentation"
+        onClick={closeSidebar}
+      />
     </div>
   )
 }

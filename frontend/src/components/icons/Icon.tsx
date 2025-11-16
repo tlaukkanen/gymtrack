@@ -1,5 +1,14 @@
 import type { IconBaseProps } from 'react-icons'
-import { FiActivity, FiBookOpen, FiLayers, FiLogOut, FiUser, FiSettings } from 'react-icons/fi'
+import {
+  FiActivity,
+  FiBookOpen,
+  FiLayers,
+  FiLogOut,
+  FiMenu,
+  FiUser,
+  FiSettings,
+  FiX,
+} from 'react-icons/fi'
 
 export const iconRegistry = {
   dashboard: FiActivity,
@@ -8,6 +17,8 @@ export const iconRegistry = {
   profile: FiUser,
   logout: FiLogOut,
   settings: FiSettings,
+  menu: FiMenu,
+  close: FiX,
 } as const
 
 export type IconName = keyof typeof iconRegistry
