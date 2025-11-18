@@ -147,7 +147,7 @@ textarea {
     bottom: 0;
     width: min(80vw, 320px);
     transform: translateX(-110%);
-    border-radius: 0 1.5rem 1.5rem 0;
+    border-radius: 0 0.5rem 0.5rem 0;
     z-index: 30;
     box-shadow: 0 25px 60px rgba(2, 6, 23, 0.7);
   }
@@ -238,7 +238,7 @@ textarea {
 
 .card {
   background: var(--card);
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   padding: 1.25rem;
   border: 1px solid rgba(148, 163, 184, 0.15);
   box-shadow: 0 15px 40px rgba(2, 6, 23, 0.6);
@@ -333,7 +333,15 @@ textarea {
 
 .builder-set-row {
   grid-template-columns: 56px repeat(3, minmax(120px, 1fr)) 56px;
-  align-items: start;
+  align-items: center;
+}
+
+.builder-set-row--labels {
+  align-items: end;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
 }
 
 .builder-set-index {
@@ -343,6 +351,12 @@ textarea {
   text-align: center;
   font-weight: 600;
   color: var(--text);
+  align-self: center;
+}
+
+.builder-set-row--labels .builder-set-index {
+  justify-content: flex-end;
+  color: var(--text-muted);
 }
 
 .builder-set-index__label {
@@ -350,6 +364,18 @@ textarea {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--text-muted);
+}
+
+.builder-set-field-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  align-self: flex-end;
+}
+
+.builder-set-field-label--full {
+  grid-column: span 3;
 }
 
 .builder-set-field input {
