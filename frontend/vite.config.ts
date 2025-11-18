@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
-import appManifest from './public/manifest.json' assert { type: 'json' }
+import appManifest from './public/manifest.json'
 
 const manifest = appManifest as Partial<ManifestOptions>
 
