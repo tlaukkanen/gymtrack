@@ -10,5 +10,5 @@ public class ExerciseSet : AuditableEntity
     public decimal? TargetWeight { get; set; }
     public int? TargetReps { get; set; }
     public int? TargetDurationSeconds { get; set; }
-    public bool IsWarmup { get; set; }
+    public int? RestSeconds { get; set; }
 }

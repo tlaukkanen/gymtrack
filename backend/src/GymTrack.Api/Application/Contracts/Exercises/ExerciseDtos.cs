@@ -10,6 +10,5 @@ public record ExerciseDto(
     ExerciseCategory Category,
     string PrimaryMuscle,
     string? SecondaryMuscle,
-    int DefaultRestSeconds,
     IReadOnlyCollection<ExerciseMuscleEngagementDto> MuscleEngagements
 );

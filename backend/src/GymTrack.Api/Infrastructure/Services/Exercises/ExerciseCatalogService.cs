@@ -28,7 +28,6 @@ internal sealed class ExerciseCatalogService : IExerciseCatalogService
                 e.Category,
                 e.PrimaryMuscle,
                 e.SecondaryMuscle,
-                e.DefaultRestSeconds,
                 e.MuscleEngagements
                     .OrderBy(m => m.MuscleGroup)
                     .Select(m => new ExerciseMuscleEngagementDto(m.MuscleGroup, m.Level))

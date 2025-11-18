@@ -44,7 +44,6 @@ public class ExerciseSeedDataTests
             Assert.Equal(definition.ExerciseId, exercise.Id);
             Assert.Equal(definition.PrimaryMuscle, exercise.PrimaryMuscle);
             Assert.Equal(definition.SecondaryMuscle, exercise.SecondaryMuscle);
-            Assert.Equal(definition.RestSeconds, exercise.DefaultRestSeconds);
             Assert.Equal(definition.Engagements.Count, exercise.MuscleEngagements.Count);
         }
     }

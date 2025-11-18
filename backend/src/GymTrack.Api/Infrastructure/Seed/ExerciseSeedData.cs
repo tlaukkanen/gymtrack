@@ -217,7 +217,6 @@ internal static class ExerciseSeedData
             Category = definition.Category,
             PrimaryMuscle = definition.PrimaryMuscle,
             SecondaryMuscle = definition.SecondaryMuscle,
-            DefaultRestSeconds = definition.RestSeconds,
             CreatedAt = DateTimeOffset.UtcNow
         };
 

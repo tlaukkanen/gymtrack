@@ -6,7 +6,7 @@ public record ExerciseSetDto(
     decimal? TargetWeight,
     int? TargetReps,
     int? TargetDurationSeconds,
-    bool IsWarmup
+    int? RestSeconds
 );
 
 public record WorkoutProgramExerciseDto(

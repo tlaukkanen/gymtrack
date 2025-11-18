@@ -80,12 +80,6 @@ public static class DatabaseSeeder
             changed = true;
         }
 
-        if (existing.DefaultRestSeconds != definition.RestSeconds)
-        {
-            existing.DefaultRestSeconds = definition.RestSeconds;
-            changed = true;
-        }
-
         var engagementsByMuscle = existing.MuscleEngagements
             .ToDictionary(x => x.MuscleGroup, StringComparer.OrdinalIgnoreCase);
 

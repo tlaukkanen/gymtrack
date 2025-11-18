@@ -1,3 +1,4 @@
+import { type CSSProperties } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,6 +8,7 @@ import { useToast } from '../../components/feedback/ToastProvider'
 import { useAuthStore, selectSetAuth } from '../../store/auth-store'
 import { Button } from '../../components/ui/Button'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { PiHeartFill } from 'react-icons/pi'
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -15,11 +17,22 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>
 
+const heroImageStyles: CSSProperties = {
+  width: '100%',
+  maxHeight: 180,
+  objectFit: 'contain',
+  marginBottom: '1.5rem',
+  filter: 'drop-shadow(0 25px 35px rgba(15, 15, 36, 0.35))',
+  WebkitMaskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
+  maskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
+}
+
 const LoginPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { push } = useToast()
   const setAuth = useAuthStore(selectSetAuth)
+  const currentYear = new Date().getFullYear()
   const {
     register,
     handleSubmit,
@@ -46,8 +59,10 @@ const LoginPage = () => {
   return (
     <div className="main-content" style={{ maxWidth: 420, margin: '0 auto' }}>
       <div className="card">
+        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', textAlign: 'center', fontWeight: 700 }}>GymTrack</h1>
+        <img src="/weights.png" alt="Weights" style={heroImageStyles} />
         <h2>Sign in</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Access your GymTrack programs and sessions.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Access your programs and sessions.</p>
         <form onSubmit={handleSubmit(onSubmit)} className="grid" style={{ gap: '1rem', marginTop: '1.5rem' }}>
           <label className="field-group">
             <span>Email</span>
@@ -67,6 +82,15 @@ const LoginPage = () => {
           New here? <Link to="/register">Create an account</Link>
         </p>
       </div>
+      <footer style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+        <p style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
+          Created with <PiHeartFill style={{ color: '#f472b6' }} aria-label="love" /> by{' '}
+          <a href="https://www.linkedin.com/in/tlaukkanen/" target="_blank" rel="noreferrer">
+            Tommi Laukkanen
+          </a>
+        </p>
+        <p style={{ margin: '0.35rem 0 0' }}>© {currentYear} Tommi Laukkanen</p>
+      </footer>
     </div>
   )
 }

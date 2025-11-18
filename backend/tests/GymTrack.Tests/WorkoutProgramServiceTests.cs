@@ -43,8 +43,7 @@ public sealed class WorkoutProgramServiceTests : IDisposable
             Id = Guid.NewGuid(),
             Name = "Bench Press",
             Category = ExerciseCategory.Strength,
-            PrimaryMuscle = "Chest",
-            DefaultRestSeconds = 90
+            PrimaryMuscle = "Chest"
         };
         _dbContext.Exercises.Add(exercise);
 
@@ -72,7 +71,7 @@ public sealed class WorkoutProgramServiceTests : IDisposable
                     Sequence = 1,
                     TargetWeight = 100,
                     TargetReps = 5,
-                    IsWarmup = false
+                    RestSeconds = 60
                 }
             }
         };
@@ -100,14 +99,14 @@ public sealed class WorkoutProgramServiceTests : IDisposable
                             programExercise.Sets.First().TargetWeight,
                             programExercise.Sets.First().TargetReps,
                             null,
-                            false),
+                            60),
                         new ExerciseSetDto(
                             null,
                             2,
                             105,
                             5,
                             null,
-                            false)
+                            60)
                     })
             });
 

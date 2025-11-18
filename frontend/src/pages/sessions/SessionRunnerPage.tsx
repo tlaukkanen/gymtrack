@@ -33,6 +33,8 @@ import type {
 import { restOptions } from '../../utils/time'
 import { useRestTimers } from '../../hooks/useRestTimers'
 
+const DEFAULT_CATALOG_REST_SECONDS = 90
+
 const formatTimer = (remainingMs: number) => {
   if (remainingMs <= 0) return '00:00'
   const totalSeconds = Math.ceil(remainingMs / 1000)
@@ -310,7 +312,7 @@ const SessionRunnerPage = () => {
 
   useEffect(() => {
     if (!catalogSelection) return
-    setCatalogRestSeconds(catalogSelection.defaultRestSeconds)
+    setCatalogRestSeconds(DEFAULT_CATALOG_REST_SECONDS)
   }, [catalogSelection?.id])
 
   const clampSetCount = (value: number) => {

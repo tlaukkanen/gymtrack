@@ -147,7 +147,7 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
                             s.TargetWeight,
                             s.TargetReps,
                             s.TargetDurationSeconds,
-                            s.IsWarmup))
+                            s.RestSeconds))
                         .ToList()))
                 .ToList());
     }
@@ -176,7 +176,7 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
                     TargetWeight = s.TargetWeight,
                     TargetReps = s.TargetReps,
                     TargetDurationSeconds = s.TargetDurationSeconds,
-                    IsWarmup = s.IsWarmup,
+                    RestSeconds = s.RestSeconds,
                     CreatedAt = _clock.UtcNow
                 })
                 .ToList();
@@ -287,7 +287,7 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
         set.TargetWeight = dto.TargetWeight;
         set.TargetReps = dto.TargetReps;
         set.TargetDurationSeconds = dto.TargetDurationSeconds;
-        set.IsWarmup = dto.IsWarmup;
+        set.RestSeconds = dto.RestSeconds;
         set.UpdatedAt = _clock.UtcNow;
     }
 

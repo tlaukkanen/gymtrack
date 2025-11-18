@@ -29,7 +29,6 @@ export interface ExerciseDto {
   category: ExerciseCategory
   primaryMuscle: string
   secondaryMuscle?: string | null
-  defaultRestSeconds: number
   muscleEngagements: ExerciseMuscleEngagementDto[]
 }
 
@@ -39,7 +38,7 @@ export interface ExerciseSetDto {
   targetWeight?: number | null
   targetReps?: number | null
   targetDurationSeconds?: number | null
-  isWarmup: boolean
+  restSeconds?: number | null
 }
 
 export interface WorkoutProgramExerciseDto {

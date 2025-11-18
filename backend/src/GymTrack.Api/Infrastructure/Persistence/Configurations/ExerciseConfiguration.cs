@@ -13,7 +13,6 @@ public class ExerciseConfiguration : IEntityTypeConfiguration<Exercise>
         builder.Property(x => x.Name).IsRequired().HasMaxLength(200);
         builder.Property(x => x.PrimaryMuscle).IsRequired().HasMaxLength(100);
         builder.Property(x => x.SecondaryMuscle).HasMaxLength(100);
-        builder.Property(x => x.DefaultRestSeconds).HasDefaultValue(60);
         builder.HasIndex(x => x.Name).IsUnique();
         builder.HasMany(x => x.MuscleEngagements)
             .WithOne(x => x.Exercise)

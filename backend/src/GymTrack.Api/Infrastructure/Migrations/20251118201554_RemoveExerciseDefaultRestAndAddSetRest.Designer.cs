@@ -4,6 +4,7 @@ using GymTrack.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GymTrack.Infrastructure.Migrations
 {
     [DbContext(typeof(GymTrackDbContext))]
-    partial class GymTrackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251118201554_RemoveExerciseDefaultRestAndAddSetRest")]
+    partial class RemoveExerciseDefaultRestAndAddSetRest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
