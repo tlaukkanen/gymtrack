@@ -62,6 +62,7 @@ export const sessionsApi = {
       .then((res) => res.data),
   removeSet: (sessionId: string, setId: string) =>
     apiClient.delete<WorkoutSessionDto>(`/sessions/${sessionId}/sets/${setId}`).then((res) => res.data),
+  remove: (sessionId: string) => apiClient.delete<void>(`/sessions/${sessionId}`),
 }
 
 export const profileApi = {

@@ -1,4 +1,4 @@
-export const restOptions = [0, 30, 60, 90, 120, 180, 240, 300]
+export const restOptions = [15, 30, 60, 90, 120, 180, 240]
 
 export const formatSeconds = (totalSeconds?: number | null) => {
   if (!totalSeconds || totalSeconds <= 0) return '—'

@@ -270,4 +270,27 @@ public class SessionsController : ControllerBase
             return Conflict(new { error = ex.Message });
         }
     }
+
+    [HttpDelete("{sessionId:guid}")]
+    public async Task<IActionResult> DeleteSession(Guid sessionId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            await _sessionService.DeleteSessionAsync(userId, sessionId, cancellationToken);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (ConflictException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
 }

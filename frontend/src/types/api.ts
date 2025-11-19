@@ -90,6 +90,8 @@ export interface WorkoutSessionExerciseDto {
   exerciseId?: string | null
   exerciseName: string
   customExerciseName?: string | null
+  customCategory?: string | null
+  category?: ExerciseCategory | null
   isAdHoc: boolean
   isCatalogExercise: boolean
   notes?: string | null

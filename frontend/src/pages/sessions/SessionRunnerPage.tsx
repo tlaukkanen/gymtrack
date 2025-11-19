@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, CircularProgress, useMediaQuery, useTheme } from '@mui/material'
-import { Plus } from 'lucide-react'
+import { CheckCircle, Plus, Trash2 } from 'lucide-react'
 
 import { exerciseApi, sessionsApi } from '../../api/requests'
 import { useToast } from '../../components/feedback/ToastProvider'
@@ -26,6 +26,7 @@ const clampRestSeconds = (value: number) => {
 
 const SessionRunnerPage = () => {
   const { sessionId } = useParams()
+  const navigate = useNavigate()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const queryClient = useQueryClient()
@@ -46,21 +47,59 @@ const SessionRunnerPage = () => {
 
   const session = sessionQuery.data
 
+  const orderedExercises = useMemo(
+    () => (session ? [...session.exercises].sort((a, b) => a.orderPerformed - b.orderPerformed) : []),
+    [session],
+  )
+
+  const isSetLogged = (sessionSet: WorkoutSessionSetDto) =>
+    [sessionSet.actualWeight, sessionSet.actualReps, sessionSet.actualDurationSeconds].some(
+      (value) => value !== null && value !== undefined,
+    )
+
+  const isExerciseLoggedComplete = (exercise: WorkoutSessionExerciseDto) =>
+    exercise.sets.length > 0 && exercise.sets.every(isSetLogged)
+
+  const completedExerciseIds = useMemo(
+    () => new Set(orderedExercises.filter((exercise) => isExerciseLoggedComplete(exercise)).map((exercise) => exercise.id)),
+    [orderedExercises],
+  )
+
   useEffect(() => {
-    if (!session) return
-    const firstExercise = session.exercises[0]
+    if (!orderedExercises.length) {
+      setActiveExerciseId(null)
+      return
+    }
+    const firstExercise = orderedExercises[0]
     setActiveExerciseId((prev) => {
-      if (prev && session.exercises.some((exercise) => exercise.id === prev)) {
+      if (prev && orderedExercises.some((exercise) => exercise.id === prev)) {
         return prev
       }
       return firstExercise ? firstExercise.id : null
     })
-  }, [session])
+  }, [orderedExercises])
 
   const activeExercise = useMemo(() => {
-    if (!session || !activeExerciseId) return undefined
-    return session.exercises.find((exercise) => exercise.id === activeExerciseId)
-  }, [session, activeExerciseId])
+    if (!activeExerciseId) return undefined
+    return orderedExercises.find((exercise) => exercise.id === activeExerciseId)
+  }, [orderedExercises, activeExerciseId])
+
+  const activeExerciseIsCompleted = activeExercise ? isExerciseLoggedComplete(activeExercise) : false
+
+  const activeExerciseHasNext = useMemo(() => {
+    if (!activeExercise) return false
+    const index = orderedExercises.findIndex((exercise) => exercise.id === activeExercise.id)
+    return index >= 0 && index < orderedExercises.length - 1
+  }, [orderedExercises, activeExercise])
+
+  const handleGoToNextExercise = () => {
+    if (!activeExercise) return
+    const index = orderedExercises.findIndex((exercise) => exercise.id === activeExercise.id)
+    const nextExercise = index >= 0 ? orderedExercises[index + 1] : undefined
+    if (nextExercise) {
+      setActiveExerciseId(nextExercise.id)
+    }
+  }
 
   const activeTimerState = activeExercise ? getTimerState(activeExercise.id) : undefined
 
@@ -97,12 +136,6 @@ const SessionRunnerPage = () => {
     onError: () => push({ title: 'Unable to remove exercise', tone: 'error' }),
   })
 
-  const reorderMutation = useMutation({
-    mutationFn: (orderedExerciseIds: string[]) => sessionsApi.reorderExercises(sessionId!, { orderedExerciseIds }),
-    onSuccess: () => invalidateSession(),
-    onError: () => push({ title: 'Unable to reorder exercises', tone: 'error' }),
-  })
-
   const updateExerciseMutation = useMutation({
     mutationFn: (payload: { sessionExerciseId: string; restSeconds?: number; notes?: string }) =>
       sessionsApi.updateExercise(sessionId!, payload.sessionExerciseId, {
@@ -137,17 +170,14 @@ const SessionRunnerPage = () => {
     onError: () => push({ title: 'Unable to complete session', tone: 'error' }),
   })
 
-  const handleReorder = (exerciseId: string, direction: -1 | 1) => {
-    if (!session) return
-    const ordered = [...session.exercises].sort((a, b) => a.orderPerformed - b.orderPerformed)
-    const index = ordered.findIndex((exercise) => exercise.id === exerciseId)
-    const targetIndex = index + direction
-    if (targetIndex < 0 || targetIndex >= ordered.length) return
-    const nextOrder = [...ordered]
-    const [item] = nextOrder.splice(index, 1)
-    nextOrder.splice(targetIndex, 0, item)
-    reorderMutation.mutate(nextOrder.map((exercise) => exercise.id))
-  }
+  const deleteSessionMutation = useMutation({
+    mutationFn: () => sessionsApi.remove(sessionId!),
+    onSuccess: () => {
+      push({ title: 'Workout deleted', tone: 'success' })
+      navigate('/app/sessions')
+    },
+    onError: () => push({ title: 'Unable to delete session', tone: 'error' }),
+  })
 
   const handleSaveExerciseDetails = (exerciseId: string, restSeconds: number, notes: string) => {
     updateExerciseMutation.mutate({
@@ -179,6 +209,12 @@ const SessionRunnerPage = () => {
     if (session?.completedAt) return
     if (!window.confirm('Mark this workout as complete? You will not be able to edit it afterwards.')) return
     completeMutation.mutate()
+  }
+
+  const handleDeleteSession = () => {
+    if (!sessionId) return
+    if (!window.confirm('Delete this workout session? This action cannot be undone.')) return
+    deleteSessionMutation.mutate()
   }
 
   const handleRemoveExercise = (exercise: WorkoutSessionExerciseDto) => {
@@ -213,11 +249,29 @@ const SessionRunnerPage = () => {
           <p style={{ color: 'var(--text-muted)', marginBottom: 0 }}>Started {startedAt}</p>
         </div>
         <div className="field-row">
+          <Button
+            variant="ghost"
+            onClick={() => navigate(`/app/programs/${session.programId}/edit`)}
+            sx={{ height: '44px' }}
+          >
+            Open Program
+          </Button>
           <Button variant="ghost" onClick={() => setAddDialogOpen(true)} startIcon={<Plus size={16} />}
             sx={{ height: '44px' }}>
             Add Exercise
           </Button>
-          <Button onClick={handleCompleteSession} disabled={Boolean(session.completedAt) || completeMutation.isPending}>
+          <Button
+            variant="ghost"
+            onClick={handleDeleteSession}
+            startIcon={<Trash2 size={16} />}
+            disabled={deleteSessionMutation.isPending}
+          >
+            {deleteSessionMutation.isPending ? 'Deleting…' : 'Delete Workout'}
+          </Button>
+          <Button onClick={handleCompleteSession} 
+          startIcon={<CheckCircle size={16} />}
+          fullWidth={isMobile}
+          disabled={Boolean(session.completedAt) || completeMutation.isPending}>
             {session.completedAt ? 'Completed' : completeMutation.isPending ? 'Completing…' : 'Complete Workout'}
           </Button>
         </div>
@@ -230,53 +284,97 @@ const SessionRunnerPage = () => {
       )}
 
       <div className="runner-layout">
-        <Card className="exercise-list-card">
-          <div className="section-header" style={{ marginBottom: '1rem' }}>
-            <h3>Exercises</h3>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{session.exercises.length} movements</span>
-          </div>
-          <ExerciseList
-            exercises={session.exercises}
-            activeExerciseId={activeExercise?.id ?? null}
-            onSelect={setActiveExerciseId}
-            onReorder={handleReorder}
-            disableReorder={Boolean(session.completedAt)}
-            isReordering={reorderMutation.isPending}
-          />
-        </Card>
-
-        <Card>
-          {activeExercise ? (
-            <ExerciseDetailsPanel
-              exercise={activeExercise}
-              isSessionCompleted={Boolean(session.completedAt)}
-              restOptions={restOptions}
-              timerRemainingMs={activeTimerState?.remainingMs ?? 0}
-              onStartTimer={(seconds) => startTimer(activeExercise.id, seconds)}
-              onPauseTimer={() => pauseTimer(activeExercise.id)}
-              onResetTimer={() => resetTimer(activeExercise.id)}
-              onSaveDetails={({ restSeconds, notes }) => handleSaveExerciseDetails(activeExercise.id, restSeconds, notes)}
-              onAddSet={() => handleAddSet(activeExercise.id)}
-              onSaveSet={(setId, body) => updateSetMutation.mutate({ setId, body })}
-              onRemoveSet={(set) => handleRemoveSet(set, activeExercise)}
-              onRemoveExercise={() => handleRemoveExercise(activeExercise)}
-              canRemoveExercise={!session.completedAt}
-              isUpdateExercisePending={updateExerciseMutation.isPending}
-              isAddSetPending={addSetMutation.isPending}
-              isUpdateSetPending={updateSetMutation.isPending}
-              isRemoveExercisePending={removeExerciseMutation.isPending}
+        {isMobile ? (
+          <div className="mobile-exercise-shell">
+            <div className="section-header" style={{ marginBottom: '0.5rem' }}>
+              <h3>Exercises</h3>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{session.exercises.length} movements</span>
+            </div>
+            <ExerciseList
+              exercises={orderedExercises}
+              activeExerciseId={activeExercise?.id ?? null}
+              onSelect={setActiveExerciseId}
+              completedExerciseIds={completedExerciseIds}
+              isMobileView
             />
-          ) : (
-            <p style={{ color: 'var(--text-muted)' }}>Select an exercise to begin logging.</p>
-          )}
-        </Card>
-      </div>
+          </div>
+        ) : (
+          <Card className="exercise-list-card">
+            <div className="section-header" style={{ marginBottom: '1rem' }}>
+              <h3>Exercises</h3>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{session.exercises.length} movements</span>
+            </div>
+            <ExerciseList
+              exercises={orderedExercises}
+              activeExerciseId={activeExercise?.id ?? null}
+              onSelect={setActiveExerciseId}
+              completedExerciseIds={completedExerciseIds}
+            />
+          </Card>
+        )}
 
-      {isMobile && (
-        <Button fullWidth onClick={() => setAddDialogOpen(true)} startIcon={<Plus size={16} />}>
-          Add Exercise
-        </Button>
-      )}
+        {isMobile ? (
+          <div>
+            {activeExercise ? (
+              <ExerciseDetailsPanel
+                exercise={activeExercise}
+                isSessionCompleted={Boolean(session.completedAt)}
+                restOptions={restOptions}
+                timerRemainingMs={activeTimerState?.remainingMs ?? 0}
+                onStartTimer={(seconds) => startTimer(activeExercise.id, seconds)}
+                onPauseTimer={() => pauseTimer(activeExercise.id)}
+                onResetTimer={() => resetTimer(activeExercise.id)}
+                onSaveDetails={({ restSeconds, notes }) => handleSaveExerciseDetails(activeExercise.id, restSeconds, notes)}
+                onAddSet={() => handleAddSet(activeExercise.id)}
+                onSaveSet={(setId, body) => updateSetMutation.mutate({ setId, body })}
+                onRemoveSet={(set) => handleRemoveSet(set, activeExercise)}
+                onRemoveExercise={() => handleRemoveExercise(activeExercise)}
+                canRemoveExercise={!session.completedAt}
+                isUpdateExercisePending={updateExerciseMutation.isPending}
+                isAddSetPending={addSetMutation.isPending}
+                isUpdateSetPending={updateSetMutation.isPending}
+                isRemoveExercisePending={removeExerciseMutation.isPending}
+                onGoToNextExercise={handleGoToNextExercise}
+                hasNextExercise={activeExerciseHasNext}
+                isExerciseCompleted={activeExerciseIsCompleted}
+                onCompleteWorkout={handleCompleteSession}
+              />
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>Select an exercise to begin logging.</p>
+            )}
+          </div>
+        ) : (
+          <Card>
+            {activeExercise ? (
+              <ExerciseDetailsPanel
+                exercise={activeExercise}
+                isSessionCompleted={Boolean(session.completedAt)}
+                restOptions={restOptions}
+                timerRemainingMs={activeTimerState?.remainingMs ?? 0}
+                onStartTimer={(seconds) => startTimer(activeExercise.id, seconds)}
+                onPauseTimer={() => pauseTimer(activeExercise.id)}
+                onResetTimer={() => resetTimer(activeExercise.id)}
+                onSaveDetails={({ restSeconds, notes }) => handleSaveExerciseDetails(activeExercise.id, restSeconds, notes)}
+                onAddSet={() => handleAddSet(activeExercise.id)}
+                onSaveSet={(setId, body) => updateSetMutation.mutate({ setId, body })}
+                onRemoveSet={(set) => handleRemoveSet(set, activeExercise)}
+                onRemoveExercise={() => handleRemoveExercise(activeExercise)}
+                canRemoveExercise={!session.completedAt}
+                isUpdateExercisePending={updateExerciseMutation.isPending}
+                isAddSetPending={addSetMutation.isPending}
+                isUpdateSetPending={updateSetMutation.isPending}
+                isRemoveExercisePending={removeExerciseMutation.isPending}
+                onGoToNextExercise={handleGoToNextExercise}
+                hasNextExercise={activeExerciseHasNext}
+                isExerciseCompleted={activeExerciseIsCompleted}
+                onCompleteWorkout={handleCompleteSession}
+              />
+            ) : (
+              <p style={{ color: 'var(--text-muted)' }}>Select an exercise to begin logging.</p>
+            )}
+          </Card>
+        )}
+      </div>
 
       <AddExerciseDialog
         open={addDialogOpen}

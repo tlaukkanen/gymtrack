@@ -254,7 +254,7 @@ const TrainingDiaryPage = () => {
           </Stack>
         </Card>
       ) : (
-        <Stack spacing={2}>
+        <Stack spacing={1.5}>
           {sessions.map((session) => {
             const status = getStatusLabel(session)
             const progress = session.totalSetCount === 0
@@ -262,58 +262,57 @@ const TrainingDiaryPage = () => {
               : Math.min(100, Math.round((session.loggedSetCount / session.totalSetCount) * 100))
 
             return (
-              <Card key={session.id}>
-                <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={2}>
-                  <div>
-                    <Typography variant="h6" gutterBottom>
-                      {session.programName}
-                    </Typography>
+              <Card
+                key={session.id}
+                component="button"
+                type="button"
+                onClick={() => navigate(`/app/sessions/${session.id}`)}
+                sx={{
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  p: 2.5,
+                  transition: 'border-color 120ms ease, box-shadow 120ms ease',
+                  '&:hover': { borderColor: 'primary.main' },
+                  '&:focus-visible': {
+                    outline: '2px solid',
+                    outlineColor: 'primary.main',
+                    outlineOffset: 2,
+                  },
+                }}
+              >
+                <Stack spacing={1.25}>
+                  <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" spacing={1}>
+                    <Stack spacing={0.3}>
+                      <Typography variant="subtitle1" component="h3">
+                        {session.programName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Started {formatDateTime(session.startedAt)} • Duration {formatDuration(session.duration)}
+                      </Typography>
+                    </Stack>
+                    <Stack direction="row" spacing={1} alignItems="center" flexShrink={0}>
+                      <Chip label={status.label} color={status.color} size="small" />
+                      <Typography variant="body2" color="text.secondary">
+                        {session.exerciseCount} exercises
+                      </Typography>
+                    </Stack>
+                  </Stack>
+
+                  <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={1}
+                    alignItems={{ xs: 'flex-start', sm: 'center' }}
+                  >
                     <Typography variant="body2" color="text.secondary">
-                      Started {formatDateTime(session.startedAt)}
+                      Logged {session.loggedSetCount}/{session.totalSetCount} sets
                     </Typography>
-                  </div>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Chip label={status.label} color={status.color} />
-                    <Chip label={`${session.exerciseCount} exercises`} variant="outlined" />
-                  </Stack>
-                </Stack>
-
-                <Box mt={2}>
-                  <Typography variant="body2" color="text.secondary">
-                    Duration {formatDuration(session.duration)} • Logged {session.loggedSetCount}/{session.totalSetCount} sets
-                  </Typography>
-                  <LinearProgress
-                    variant="determinate"
-                    value={progress}
-                    sx={{ mt: 1, height: 6, borderRadius: 999 }}
-                  />
-                </Box>
-
-                <Stack
-                  direction={{ xs: 'column', md: 'row' }}
-                  spacing={2}
-                  justifyContent="space-between"
-                  alignItems={{ xs: 'flex-start', md: 'center' }}
-                  mt={3}
-                >
-                  <Stack spacing={0.5}>
-                    <Typography variant="subtitle2">Completed</Typography>
-                    <Typography>{formatDateTime(session.completedAt)}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Updated {formatDateTime(session.lastUpdatedAt)}
-                    </Typography>
-                  </Stack>
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} width={{ xs: '100%', sm: 'auto' }}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => navigate(`/app/programs/${session.programId}/edit`)}
-                      fullWidth
-                    >
-                      Open Program
-                    </Button>
-                    <Button onClick={() => navigate(`/app/sessions/${session.id}`)} fullWidth>
-                      {status.label === 'In progress' ? 'Continue session' : 'View log'}
-                    </Button>
+                    <Box flex={1} width="100%">
+                      <LinearProgress
+                        variant="determinate"
+                        value={progress}
+                        sx={{ height: 4, borderRadius: 999 }}
+                      />
+                    </Box>
                   </Stack>
                 </Stack>
               </Card>

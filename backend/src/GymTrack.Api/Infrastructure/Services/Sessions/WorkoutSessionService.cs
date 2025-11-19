@@ -452,6 +452,27 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         return await GetSessionAsync(userId, sessionId, cancellationToken);
     }
 
+    public async Task DeleteSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default)
+    {
+        var session = await _dbContext.WorkoutSessions
+            .Include(s => s.Exercises)
+                .ThenInclude(e => e.Sets)
+            .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId, cancellationToken);
+
+        if (session is null)
+        {
+            throw new NotFoundException("Workout session not found.");
+        }
+
+        if (session.CompletedAt.HasValue)
+        {
+            throw new ConflictException("Completed sessions cannot be deleted.");
+        }
+
+        _dbContext.WorkoutSessions.Remove(session);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task LoadSessionGraphAsync(WorkoutSession session, CancellationToken cancellationToken)
     {
         await _dbContext.Entry(session)
