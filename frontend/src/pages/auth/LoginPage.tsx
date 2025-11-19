@@ -22,7 +22,7 @@ const heroImageStyles: CSSProperties = {
   maxHeight: 180,
   objectFit: 'contain',
   marginBottom: '1.5rem',
-  filter: 'drop-shadow(0 25px 35px rgba(15, 15, 36, 0.35))',
+  //filter: 'drop-shadow(0 25px 35px rgba(15, 15, 36, 0.35))',
   WebkitMaskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
   maskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
 }

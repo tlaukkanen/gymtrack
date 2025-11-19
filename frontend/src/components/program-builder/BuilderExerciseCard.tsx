@@ -1,5 +1,5 @@
 import IconButton from '@mui/material/IconButton'
-import { FiTrash2 } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiTrash2 } from 'react-icons/fi'
 import { Button } from '../ui/Button'
 import BuilderSetRow from './BuilderSetRow'
 import type { BuilderExercise, BuilderSet } from './types'
@@ -42,12 +42,22 @@ const BuilderExerciseCard = ({
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{exercise.category}</p>
         </div>
         <div className="field-row" style={{ justifyContent: 'flex-end' }}>
-          <Button variant="secondary" onClick={onMoveUp} disabled={index === 0}>
-            ↑
-          </Button>
-          <Button variant="secondary" onClick={onMoveDown} disabled={index === total - 1}>
-            ↓
-          </Button>
+          <IconButton
+            size="small"
+            onClick={onMoveUp}
+            disabled={index === 0}
+            aria-label={`Move ${exercise.exerciseName} up`}
+          >
+            <FiChevronUp size={18} />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={onMoveDown}
+            disabled={index === total - 1}
+            aria-label={`Move ${exercise.exerciseName} down`}
+          >
+            <FiChevronDown size={18} />
+          </IconButton>
           <IconButton color="error" onClick={onRemove} aria-label={`Remove ${exercise.exerciseName}`}>
             <FiTrash2 size={18} />
           </IconButton>
