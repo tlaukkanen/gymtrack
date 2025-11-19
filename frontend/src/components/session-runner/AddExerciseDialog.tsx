@@ -59,11 +59,10 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
     setCustomNotes('')
   }
 
-  useEffect(() => {
-    if (open) {
-      resetState()
-    }
-  }, [open])
+  const handleClose = () => {
+    resetState()
+    onClose()
+  }
 
   const filteredExercises = useMemo(() => {
     if (!exercises) return []
@@ -115,7 +114,7 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
   }
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle>Add exercise to session</DialogTitle>
       <DialogContent dividers>
         <Tabs value={tab} onChange={(_, value) => setTab(value)} sx={{ mb: 2 }}>
@@ -180,7 +179,7 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
         )}
       </DialogContent>
       <DialogActions>
-        <Button variant="ghost" onClick={onClose}>
+        <Button variant="ghost" onClick={handleClose}>
           Cancel
         </Button>
         <Button onClick={handleAdd} disabled={isSubmitting}>

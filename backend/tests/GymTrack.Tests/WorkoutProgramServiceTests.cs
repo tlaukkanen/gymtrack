@@ -117,6 +117,108 @@ public sealed class WorkoutProgramServiceTests : IDisposable
         Assert.Contains(updatedExercise.Sets, s => s.Sequence == 2 && s.TargetWeight == 105);
     }
 
+    [Fact]
+    public async Task UpdateProgramAsync_AddsNewExerciseWithSets()
+    {
+        var bench = new Exercise
+        {
+            Id = Guid.NewGuid(),
+            Name = "Bench Press",
+            Category = ExerciseCategory.Strength,
+            PrimaryMuscle = "Chest"
+        };
+
+        var squat = new Exercise
+        {
+            Id = Guid.NewGuid(),
+            Name = "Back Squat",
+            Category = ExerciseCategory.Strength,
+            PrimaryMuscle = "Quads"
+        };
+
+        _dbContext.Exercises.AddRange(bench, squat);
+
+        var program = new WorkoutProgram
+        {
+            Id = Guid.NewGuid(),
+            UserId = _userId,
+            Name = "Push/Pull"
+        };
+
+        var existingExercise = new WorkoutProgramExercise
+        {
+            Id = Guid.NewGuid(),
+            WorkoutProgram = program,
+            WorkoutProgramId = program.Id,
+            ExerciseId = bench.Id,
+            DisplayOrder = 1,
+            RestSeconds = 90,
+            Notes = string.Empty,
+            Sets =
+            {
+                new ExerciseSet
+                {
+                    Id = Guid.NewGuid(),
+                    Sequence = 1,
+                    TargetWeight = 95,
+                    TargetReps = 5,
+                    RestSeconds = 60
+                }
+            }
+        };
+
+        program.Exercises.Add(existingExercise);
+        _dbContext.WorkoutPrograms.Add(program);
+        await _dbContext.SaveChangesAsync();
+
+        var request = new UpdateWorkoutProgramRequest(
+            program.Name,
+            program.Description,
+            new[]
+            {
+                new WorkoutProgramExerciseDto(
+                    existingExercise.Id,
+                    existingExercise.ExerciseId,
+                    existingExercise.DisplayOrder,
+                    existingExercise.RestSeconds,
+                    existingExercise.Notes,
+                    new[]
+                    {
+                        new ExerciseSetDto(
+                            existingExercise.Sets.First().Id,
+                            1,
+                            existingExercise.Sets.First().TargetWeight,
+                            existingExercise.Sets.First().TargetReps,
+                            null,
+                            existingExercise.Sets.First().RestSeconds)
+                    }),
+                new WorkoutProgramExerciseDto(
+                    null,
+                    squat.Id,
+                    2,
+                    120,
+                    "Add new squat work",
+                    new[]
+                    {
+                        new ExerciseSetDto(
+                            null,
+                            1,
+                            135,
+                            8,
+                            null,
+                            90)
+                    })
+            });
+
+        var result = await _service.UpdateProgramAsync(_userId, program.Id, request);
+
+        Assert.Equal(2, result.Exercises.Count);
+        var added = result.Exercises.Single(x => x.ExerciseId == squat.Id);
+        Assert.Single(added.Sets);
+        Assert.Equal(135, added.Sets.First().TargetWeight);
+        Assert.Equal(2, added.DisplayOrder);
+    }
+
     public void Dispose()
     {
         _dbContext.Dispose();

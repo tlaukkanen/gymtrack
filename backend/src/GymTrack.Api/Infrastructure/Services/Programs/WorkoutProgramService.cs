@@ -223,6 +223,7 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
             };
 
             program.Exercises.Add(exercise);
+            _dbContext.Entry(exercise).State = EntityState.Added;
             retained.Add(exercise.Id);
             SyncExerciseSets(exercise, exerciseDto.Sets ?? Array.Empty<ExerciseSetDto>());
         }
