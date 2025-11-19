@@ -5,6 +5,7 @@ import { Card } from '../../components/ui/Card'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { formatDate } from '../../utils/time'
 import { useNavigate } from 'react-router-dom'
+import { Edit, Play, Trash } from 'lucide-react'
 
 const DashboardPage = () => {
   const { data: programs, isLoading } = useQuery({ queryKey: ['programs'], queryFn: programsApi.list })
@@ -78,23 +79,28 @@ const DashboardPage = () => {
                     {program.exerciseCount} exercises • created {formatDate(program.createdAt)}
                   </p>
                 </div>
-                <Button variant="secondary" onClick={() => navigate(`/app/programs/${program.id}/edit`)}>
+                <Button variant="ghost" 
+                  startIcon={<Edit size={16} />}
+                  onClick={() => navigate(`/app/programs/${program.id}/edit`)}>
                   Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  startIcon={<Trash size={16} />}
+                  onClick={() => deleteMutation.mutate(program.id)}
+                  disabled={deleteMutation.isPending}
+                >
+                  Delete
                 </Button>
               </div>
               <div className="field-row" style={{ marginTop: '1.25rem' }}>
                 <Button
                   onClick={() => startSessionMutation.mutate(program.id)}
+                  startIcon={<Play size={16} />}
                   disabled={startSessionMutation.isPending}
+                  fullWidth
                 >
                   {startSessionMutation.isPending ? 'Starting…' : 'Start Workout'}
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => deleteMutation.mutate(program.id)}
-                  disabled={deleteMutation.isPending}
-                >
-                  Delete
                 </Button>
               </div>
             </Card>
