@@ -254,7 +254,7 @@ const ProgramBuilderPage = () => {
         </div>
       </Card>
 
-      <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+      <div className="grid program-builder-layout">
         <ProgramExercisesPanel
           exercises={builderExercises}
           restOptions={restOptions}
