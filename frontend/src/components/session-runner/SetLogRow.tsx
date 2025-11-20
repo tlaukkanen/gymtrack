@@ -98,7 +98,7 @@ export const SetLogRow = ({ set, category, onSave, isSaving, canRemove, onRemove
         </div>
       ) : (
         <>
-          <div className="flex-1 min-w-[68px] max-w-[140px] sm:max-w-none">
+          <div className="flex-1 min-w-[30px] max-w-[140px] sm:max-w-none">
             <TextField
               size="small"
               label="Weight"

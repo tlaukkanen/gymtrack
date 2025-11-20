@@ -225,13 +225,13 @@ const ProgramBuilderPage = () => {
   }, [exercisesQuery.data, search])
 
   return (
-    <div className="grid" style={{ gap: '1.5rem' }}>
-      <div className="section-header">
+    <div className="grid gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2>{isEditing ? 'Edit workout program' : 'Create a workout program'}</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Define exercises, rest intervals, and targets.</p>
+          <p className="text-[var(--text-muted)]">Define exercises, rest intervals, and targets.</p>
         </div>
-        <div className="field-row">
+        <div className="flex flex-wrap gap-4">
           <Button variant="secondary" onClick={() => navigate('/app/dashboard')}>
             Cancel
           </Button>
@@ -242,19 +242,19 @@ const ProgramBuilderPage = () => {
       </div>
 
       <Card>
-        <div className="field-row">
-          <label className="field-group" style={{ flex: 1 }}>
+        <div className="flex flex-wrap gap-4">
+          <label className="flex flex-1 flex-col gap-2">
             <span>Name</span>
             <input placeholder="Upper Body Power" {...register('name', { required: true })} />
           </label>
-          <label className="field-group" style={{ flex: 1 }}>
+          <label className="flex flex-1 flex-col gap-2">
             <span>Description</span>
             <input placeholder="Focus on pull/chest strength" {...register('description')} />
           </label>
         </div>
       </Card>
 
-      <div className="grid program-builder-layout">
+      <div className="grid gap-6 [grid-template-columns:minmax(0,1fr)] items-start lg:[grid-template-columns:minmax(0,2fr)_minmax(0,1fr)]">
         <ProgramExercisesPanel
           exercises={builderExercises}
           restOptions={restOptions}

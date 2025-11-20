@@ -136,7 +136,7 @@ textarea {
 }
 
 .main-content {
-  padding: 2rem;
+  padding: 1rem;
 }
 
 @media (max-width: 900px) {
@@ -331,19 +331,19 @@ textarea {
 
 .set-row {
   display: grid;
-  grid-template-columns: repeat(5, minmax(80px, 1fr)) 120px;
+  grid-template-columns: repeat(5, minmax(40px, 1fr)) 80px;
   gap: 0.75rem;
   align-items: center;
 }
 
 @media (max-width: 700px) {
   .set-row {
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, minmax(30px, 1fr));
   }
 }
 
 .builder-set-row {
-  grid-template-columns: 48px repeat(3, minmax(90px, 1fr)) 48px;
+  grid-template-columns: 10px repeat(3, minmax(30px, 1fr)) 10px;
   align-items: center;
 }
 
@@ -417,7 +417,7 @@ textarea {
 
 @media (max-width: 700px) {
   .builder-set-row {
-    grid-template-columns: 40px repeat(3, minmax(70px, 1fr)) 40px;
+    grid-template-columns: 10px repeat(3, minmax(70px, 1fr)) 10px;
   }
 
   .builder-add-set-button {
