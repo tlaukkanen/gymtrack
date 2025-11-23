@@ -558,11 +558,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
             throw new NotFoundException("Workout session not found.");
         }
 
-        if (session.CompletedAt.HasValue)
-        {
-            throw new ConflictException("Completed sessions cannot be deleted.");
-        }
-
         _dbContext.WorkoutSessions.Remove(session);
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
