@@ -233,10 +233,10 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         }
 
         var progressionExercises = await progressionQuery
-            .OrderBy(e => e.WorkoutSession.CompletedAt)
             .ToListAsync(cancellationToken);
 
         var results = progressionExercises
+            .OrderBy(e => e.WorkoutSession.CompletedAt)
             .Select(e =>
             {
                 var totalWeight = e.Sets

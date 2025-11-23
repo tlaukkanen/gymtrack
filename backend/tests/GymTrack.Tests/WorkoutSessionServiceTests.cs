@@ -84,14 +84,14 @@ public sealed class WorkoutSessionServiceTests : IDisposable
             }
         };
 
-        foreach (var exercise in session.Exercises)
+        foreach (var sessionExercise in session.Exercises)
         {
-            exercise.WorkoutSession = session;
-            exercise.WorkoutSessionId = session.Id;
-            foreach (var set in exercise.Sets)
+            sessionExercise.WorkoutSession = session;
+            sessionExercise.WorkoutSessionId = session.Id;
+            foreach (var set in sessionExercise.Sets)
             {
-                set.WorkoutSessionExercise = exercise;
-                set.WorkoutSessionExerciseId = exercise.Id;
+                set.WorkoutSessionExercise = sessionExercise;
+                set.WorkoutSessionExerciseId = sessionExercise.Id;
             }
         }
 
@@ -169,11 +169,27 @@ public sealed class WorkoutSessionServiceTests : IDisposable
     [Fact]
     public async Task GetExerciseProgressionAsync_ReturnsOrderedPoints()
     {
-        var (program, exercise) = await SeedProgramAsync();
+        var (program, catalogExercise) = await SeedProgramAsync();
+        var (_, otherCatalogExercise) = await SeedProgramAsync("Other");
 
-        var firstSession = CreateCompletedSession(program, exercise.Id, _clock.UtcNow.AddDays(-5), 100, 5);
-        var secondSession = CreateCompletedSession(program, exercise.Id, _clock.UtcNow.AddDays(-2), 120, 5);
-        var otherSession = CreateCompletedSession(program, Guid.NewGuid(), _clock.UtcNow.AddDays(-1), 150, 5);
+        var firstSession = CreateCompletedSession(
+            program,
+            catalogExercise.Id,
+            _clock.UtcNow.AddDays(-5),
+            100,
+            5);
+        var secondSession = CreateCompletedSession(
+            program,
+            catalogExercise.Id,
+            _clock.UtcNow.AddDays(-2),
+            120,
+            5);
+        var otherSession = CreateCompletedSession(
+            program,
+            otherCatalogExercise.Id,
+            _clock.UtcNow.AddDays(-1),
+            150,
+            5);
 
         _dbContext.WorkoutSessions.AddRange(firstSession, secondSession, otherSession);
         await _dbContext.SaveChangesAsync();
@@ -243,6 +259,8 @@ public sealed class WorkoutSessionServiceTests : IDisposable
             WorkoutSessionId = session.Id,
             ExerciseId = exerciseId,
             ProgramExerciseId = null,
+            OrderPerformed = 1,
+            RestSeconds = 60,
             CreatedAt = completedAt.AddHours(-1),
             Sets =
             {
