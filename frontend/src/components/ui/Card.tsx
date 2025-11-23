@@ -4,6 +4,7 @@ import clsx from 'clsx'
 
 interface CardProps extends PaperProps {
   muted?: boolean
+  type?: string
 }
 
 export const Card = ({ className, muted = false, sx, ...props }: CardProps) => {

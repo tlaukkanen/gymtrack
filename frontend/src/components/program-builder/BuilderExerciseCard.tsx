@@ -3,6 +3,7 @@ import { FiChevronDown, FiChevronUp, FiTrash2 } from 'react-icons/fi'
 import { Button } from '../ui/Button'
 import BuilderSetRow from './BuilderSetRow'
 import type { BuilderExercise, BuilderSet } from './types'
+import { resolveRegion } from '../../utils/regions'
 
 interface BuilderExerciseCardProps {
   exercise: BuilderExercise
@@ -39,7 +40,19 @@ const BuilderExerciseCard = ({
       <div className="section-header">
         <div>
           <h4>{exercise.exerciseName}</h4>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{exercise.category}</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <span>{exercise.category}</span>
+            <span
+              className="badge badge-some"
+              style={{
+                textTransform: 'uppercase',
+                fontSize: '0.65rem',
+                letterSpacing: '0.08em'
+              }}
+            >
+              {resolveRegion(exercise.primaryMuscle)}
+            </span>
+          </p>
         </div>
         <div className="field-row" style={{ justifyContent: 'flex-end' }}>
           <IconButton

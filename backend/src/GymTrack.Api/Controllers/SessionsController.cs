@@ -41,6 +41,47 @@ public class SessionsController : ControllerBase
         }
     }
 
+    [HttpGet("~/api/programs/{programId:guid}/sessions/progression")]
+    public async Task<ActionResult<IReadOnlyCollection<WorkoutSessionProgressPointDto>>> GetProgramProgression(Guid programId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            var progression = await _sessionService.GetProgramProgressionAsync(
+                userId,
+                programId,
+                cancellationToken);
+            return Ok(progression);
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("{sessionId:guid}/exercises/{sessionExerciseId:guid}/progression")]
+    public async Task<ActionResult<IReadOnlyCollection<WorkoutSessionExerciseProgressPointDto>>> GetExerciseProgression(Guid sessionId, Guid sessionExerciseId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            var progression = await _sessionService.GetExerciseProgressionAsync(
+                userId,
+                sessionId,
+                sessionExerciseId,
+                cancellationToken);
+            return Ok(progression);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (ValidationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("~/api/programs/{programId:guid}/sessions")]
     public async Task<ActionResult<WorkoutSessionDto>> StartSession(Guid programId, StartWorkoutSessionRequest request, CancellationToken cancellationToken)
     {

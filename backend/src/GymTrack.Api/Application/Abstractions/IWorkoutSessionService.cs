@@ -15,5 +15,7 @@ public interface IWorkoutSessionService
     Task<WorkoutSessionDto> AddSetAsync(Guid userId, Guid sessionId, Guid sessionExerciseId, AddSessionSetRequest request, CancellationToken cancellationToken = default);
     Task<WorkoutSessionDto> RemoveSetAsync(Guid userId, Guid sessionId, Guid setId, CancellationToken cancellationToken = default);
     Task<PagedResult<WorkoutSessionSummaryDto>> ListSessionsAsync(Guid userId, SessionListQuery query, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<WorkoutSessionProgressPointDto>> GetProgramProgressionAsync(Guid userId, Guid programId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<WorkoutSessionExerciseProgressPointDto>> GetExerciseProgressionAsync(Guid userId, Guid sessionId, Guid sessionExerciseId, CancellationToken cancellationToken = default);
     Task DeleteSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default);
 }

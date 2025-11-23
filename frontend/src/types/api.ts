@@ -107,6 +107,7 @@ export interface WorkoutSessionDto {
   completedAt?: string | null
   notes?: string | null
   exercises: WorkoutSessionExerciseDto[]
+  totalWeightLiftedKg?: number | null
 }
 
 export interface WorkoutSessionSummaryDto {
@@ -120,6 +121,20 @@ export interface WorkoutSessionSummaryDto {
   loggedSetCount: number
   totalSetCount: number
   lastUpdatedAt: string
+  totalWeightLiftedKg?: number | null
+}
+
+export interface WorkoutSessionProgressPointDto {
+  sessionId: string
+  completedAt: string
+  totalWeightLiftedKg: number
+}
+
+export interface WorkoutSessionExerciseProgressPointDto {
+  sessionId: string
+  sessionExerciseId: string
+  completedAt: string
+  totalWeightLiftedKg: number
 }
 
 export type SessionListStatus = 'All' | 'InProgress' | 'Completed'

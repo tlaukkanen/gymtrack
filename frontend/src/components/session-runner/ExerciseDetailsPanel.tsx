@@ -139,18 +139,21 @@ export const ExerciseDetailsPanel = ({
           style={{
             flexDirection: isMobile ? 'column' : 'row',
             alignItems: isMobile ? 'stretch' : 'center',
+            gap: isMobile ? '0.75rem' : '1rem',
           }}
         >
-          {/*
           <TextField
             label="Rest seconds"
             type="number"
             value={restSeconds}
-            onChange={(event) => setRestSeconds(Number(event.target.value))}
+            onChange={(event) => {
+              const nextValue = Number(event.target.value)
+              setRestSeconds(Number.isFinite(nextValue) ? nextValue : 0)
+            }}
             inputProps={{ min: 0, max: 600 }}
             fullWidth={isMobile}
             disabled={isSessionCompleted}
-          />*/}
+          />
           <TextField
             label="My Notes"
             multiline
@@ -166,85 +169,89 @@ export const ExerciseDetailsPanel = ({
         </div>
       </Stack>
 
-      <Divider />
+      {!isSessionCompleted && (
+        <>
+          <Divider />
 
-      <Box>
-        <Typography variant="subtitle2" gutterBottom>
-          Rest timer
-        </Typography>
-        <Stack spacing={isMobile ? 1.5 : 2}>
-          <Stack
-            direction={isMobile ? 'column' : 'row'}
-            spacing={isMobile ? 1.5 : 2}
-            alignItems={isMobile ? 'stretch' : 'center'}
-            justifyContent="space-between"
-            flexWrap={isMobile ? 'nowrap' : 'wrap'}
-          >
-            <Box
-              className="timer-display"
-              sx={{
-                textAlign: isMobile ? 'center' : 'left',
-                flex: isMobile ? '1 1 auto' : '0 0 auto',
-                lineHeight: 1.1,
-              }}
-            >
-              {formatTimer(timerRemainingMs)}
-            </Box>
+          <Box>
+            <Typography variant="subtitle2" gutterBottom>
+              Rest timer
+            </Typography>
+            <Stack spacing={isMobile ? 1.5 : 2}>
+              <Stack
+                direction={isMobile ? 'column' : 'row'}
+                spacing={isMobile ? 1.5 : 2}
+                alignItems={isMobile ? 'stretch' : 'center'}
+                justifyContent="space-between"
+                flexWrap={isMobile ? 'nowrap' : 'wrap'}
+              >
+                <Box
+                  className="timer-display"
+                  sx={{
+                    textAlign: isMobile ? 'center' : 'left',
+                    flex: isMobile ? '1 1 auto' : '0 0 auto',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {formatTimer(timerRemainingMs)}
+                </Box>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  justifyContent={isMobile ? 'space-between' : 'flex-start'}
+                  width={isMobile ? '100%' : 'auto'}
+                  flexWrap="wrap"
+                >
+                  <IconButton
+                    color="primary"
+                    onClick={() => onStartTimer(exercise.restSeconds)}
+                    disabled={isSessionCompleted}
+                    size={isMobile ? 'large' : 'medium'}
+                    sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
+                    aria-label="Start rest timer"
+                  >
+                    <Play size={isMobile ? 20 : 18} />
+                  </IconButton>
+                  <IconButton
+                    color="warning"
+                    onClick={onPauseTimer}
+                    disabled={isSessionCompleted}
+                    size={isMobile ? 'large' : 'medium'}
+                    sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
+                    aria-label="Pause rest timer"
+                  >
+                    <Pause size={isMobile ? 20 : 18} />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    onClick={onResetTimer}
+                    disabled={isSessionCompleted}
+                    size={isMobile ? 'large' : 'medium'}
+                    sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
+                    aria-label="Reset rest timer"
+                  >
+                    <RefreshCcw size={isMobile ? 20 : 18} />
+                  </IconButton>
+                </Stack>
+              </Stack>
+            </Stack>
             <Stack
               direction="row"
-              spacing={1}
-              alignItems="center"
-              justifyContent={isMobile ? 'space-between' : 'flex-start'}
-              width={isMobile ? '100%' : 'auto'}
               flexWrap="wrap"
+              marginTop={1}
+              justifyContent={isMobile ? 'center' : 'flex-start'}
+              sx={{ columnGap: isMobile ? 0.75 : 1, rowGap: isMobile ? 0.75 : 0.5 }}
             >
-              <IconButton
-                color="primary"
-                onClick={() => onStartTimer(exercise.restSeconds)}
-                disabled={isSessionCompleted}
-                size={isMobile ? 'large' : 'medium'}
-                sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
-                aria-label="Start rest timer"
-              >
-                <Play size={isMobile ? 20 : 18} />
-              </IconButton>
-              <IconButton
-                color="warning"
-                onClick={onPauseTimer}
-                disabled={isSessionCompleted}
-                size={isMobile ? 'large' : 'medium'}
-                sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
-                aria-label="Pause rest timer"
-              >
-                <Pause size={isMobile ? 20 : 18} />
-              </IconButton>
-              <IconButton
-                color="secondary"
-                onClick={onResetTimer}
-                disabled={isSessionCompleted}
-                size={isMobile ? 'large' : 'medium'}
-                sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
-                aria-label="Reset rest timer"
-              >
-                <RefreshCcw size={isMobile ? 20 : 18} />
-              </IconButton>
+              {restOptions.map((value) => (
+                <Chip key={value} label={value === 0 ? 'No rest' : `${value}s`} clickable onClick={() => onStartTimer(value)} disabled={isSessionCompleted} />
+              ))}
             </Stack>
-          </Stack>
-        </Stack>
-        <Stack
-          direction="row"
-          flexWrap="wrap"
-          marginTop={1}
-          justifyContent={isMobile ? 'center' : 'flex-start'}
-          sx={{ columnGap: isMobile ? 0.75 : 1, rowGap: isMobile ? 0.75 : 0.5 }}
-        >
-          {restOptions.map((value) => (
-            <Chip key={value} label={value === 0 ? 'No rest' : `${value}s`} clickable onClick={() => onStartTimer(value)} disabled={isSessionCompleted} />
-          ))}
-        </Stack>
-      </Box>
+          </Box>
 
-      <Divider />
+          <Divider />
+        </>
+      )}
 
       <Stack spacing={1.5}>
         <Typography variant="h6">Sets</Typography>

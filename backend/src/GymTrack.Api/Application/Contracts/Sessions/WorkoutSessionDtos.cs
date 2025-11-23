@@ -33,7 +33,8 @@ public record WorkoutSessionDto(
     DateTimeOffset StartedAt,
     DateTimeOffset? CompletedAt,
     string? Notes,
-    IReadOnlyCollection<WorkoutSessionExerciseDto> Exercises
+    IReadOnlyCollection<WorkoutSessionExerciseDto> Exercises,
+    decimal? TotalWeightLiftedKg
 );
 
 public record WorkoutSessionSummaryDto(
@@ -46,7 +47,21 @@ public record WorkoutSessionSummaryDto(
     int ExerciseCount,
     int LoggedSetCount,
     int TotalSetCount,
-    DateTimeOffset LastUpdatedAt
+    DateTimeOffset LastUpdatedAt,
+    decimal? TotalWeightLiftedKg
+);
+
+public record WorkoutSessionProgressPointDto(
+    Guid SessionId,
+    DateTimeOffset CompletedAt,
+    decimal TotalWeightLiftedKg
+);
+
+public record WorkoutSessionExerciseProgressPointDto(
+    Guid SessionId,
+    Guid SessionExerciseId,
+    DateTimeOffset CompletedAt,
+    decimal TotalWeightLiftedKg
 );
 
 public record UpdateSessionSetRequest(

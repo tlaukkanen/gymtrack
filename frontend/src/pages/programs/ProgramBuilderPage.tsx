@@ -51,6 +51,8 @@ const ProgramBuilderPage = () => {
   const { push } = useToast()
   const [builderExercises, setBuilderExercises] = useState<BuilderExercise[]>([])
   const [search, setSearch] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<NormalizedCategory | 'All'>('All')
+  const [selectedPrimaryMuscle, setSelectedPrimaryMuscle] = useState<string | 'All'>('All')
 
   const { register, handleSubmit, setValue } = useForm<FormValues>({ defaultValues: { name: '', description: '' } })
   const [initialized, setInitialized] = useState(false)
@@ -69,11 +71,14 @@ const ProgramBuilderPage = () => {
       const mapped: BuilderExercise[] = program.exercises.map((exercise) => {
         const sourceExercise = exerciseCatalog.find((x) => x.id === exercise.exerciseId)
         const category = normalizeCategory(sourceExercise?.category)
+        const primaryMuscle = sourceExercise?.primaryMuscle ?? 'Other'
         return {
           key: crypto.randomUUID(),
           sourceId: exercise.id ?? undefined,
           exerciseId: exercise.exerciseId,
           exerciseName: sourceExercise?.name ?? 'Exercise',
+          primaryMuscle,
+          secondaryMuscle: sourceExercise?.secondaryMuscle ?? null,
           category,
           restSeconds: exercise.restSeconds,
           notes: exercise.notes ?? '',
@@ -120,6 +125,8 @@ const ProgramBuilderPage = () => {
       key: crypto.randomUUID(),
       exerciseId: exercise.id,
       exerciseName: exercise.name,
+      primaryMuscle: exercise.primaryMuscle,
+      secondaryMuscle: exercise.secondaryMuscle ?? null,
       category,
       restSeconds: DEFAULT_EXERCISE_REST_SECONDS,
       notes: '',
@@ -213,16 +220,23 @@ const ProgramBuilderPage = () => {
 
   const filteredCatalog = useMemo(() => {
     if (!exercisesQuery.data) return []
-    if (!search) return exercisesQuery.data
-    const normalized = search.toLowerCase()
+    const normalizedSearch = search.toLowerCase()
     return exercisesQuery.data.filter((exercise) => {
-      return (
-        exercise.name.toLowerCase().includes(normalized) ||
-        exercise.primaryMuscle.toLowerCase().includes(normalized) ||
-        exercise.secondaryMuscle?.toLowerCase().includes(normalized)
-      )
+      const matchesSearch =
+        !normalizedSearch ||
+        exercise.name.toLowerCase().includes(normalizedSearch) ||
+        exercise.primaryMuscle.toLowerCase().includes(normalizedSearch) ||
+        exercise.secondaryMuscle?.toLowerCase().includes(normalizedSearch)
+
+      const normalizedCategory = normalizeCategory(exercise.category)
+      const matchesCategory = selectedCategory === 'All' || normalizedCategory === selectedCategory
+
+      const matchesPrimaryMuscle =
+        selectedPrimaryMuscle === 'All' || exercise.primaryMuscle.toLowerCase() === selectedPrimaryMuscle.toLowerCase()
+
+      return matchesSearch && matchesCategory && matchesPrimaryMuscle
     })
-  }, [exercisesQuery.data, search])
+  }, [exercisesQuery.data, search, selectedCategory, selectedPrimaryMuscle])
 
   return (
     <div className="grid gap-6">
@@ -254,7 +268,7 @@ const ProgramBuilderPage = () => {
         </div>
       </Card>
 
-      <div className="grid gap-6 [grid-template-columns:minmax(0,1fr)] items-start lg:[grid-template-columns:minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="flex flex-col gap-6">
         <ProgramExercisesPanel
           exercises={builderExercises}
           restOptions={restOptions}
@@ -270,6 +284,10 @@ const ProgramBuilderPage = () => {
           totalCount={exercisesQuery.data?.length ?? 0}
           search={search}
           onSearchChange={setSearch}
+          selectedCategory={selectedCategory === 'All' ? 'All' : selectedCategory}
+          onCategoryChange={(value) => setSelectedCategory(value === 'All' ? 'All' : normalizeCategory(value))}
+          selectedPrimaryMuscle={selectedPrimaryMuscle}
+          onPrimaryMuscleChange={setSelectedPrimaryMuscle}
           exercises={filteredCatalog}
           onAddExercise={addExercise}
         />

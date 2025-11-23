@@ -159,10 +159,101 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
                     set.ActualReps.HasValue ||
                     set.ActualWeight.HasValue),
                 s.Exercises.SelectMany(e => e.Sets).Count(),
-                s.CompletedAt ?? s.UpdatedAt ?? s.StartedAt))
+                s.CompletedAt ?? s.UpdatedAt ?? s.StartedAt,
+                s.TotalWeightLiftedKg))
             .ToListAsync(cancellationToken);
 
         return new PagedResult<WorkoutSessionSummaryDto>(results, page, pageSize, totalCount);
+    }
+
+    public async Task<IReadOnlyCollection<WorkoutSessionProgressPointDto>> GetProgramProgressionAsync(Guid userId, Guid programId, CancellationToken cancellationToken = default)
+    {
+        var points = await _dbContext.WorkoutSessions
+            .AsNoTracking()
+            .Where(s =>
+                s.UserId == userId &&
+                s.WorkoutProgramId == programId &&
+                s.CompletedAt != null &&
+                s.TotalWeightLiftedKg != null)
+            .Select(s => new WorkoutSessionProgressPointDto(
+                s.Id,
+                s.CompletedAt!.Value,
+                s.TotalWeightLiftedKg!.Value))
+            .ToListAsync(cancellationToken);
+
+        return points
+            .OrderBy(point => point.CompletedAt)
+            .ToList();
+    }
+
+    public async Task<IReadOnlyCollection<WorkoutSessionExerciseProgressPointDto>> GetExerciseProgressionAsync(Guid userId, Guid sessionId, Guid sessionExerciseId, CancellationToken cancellationToken = default)
+    {
+        var sessionExercise = await _dbContext.WorkoutSessionExercises
+            .Include(e => e.WorkoutSession)
+            .FirstOrDefaultAsync(
+                e =>
+                    e.Id == sessionExerciseId &&
+                    e.WorkoutSessionId == sessionId,
+                cancellationToken);
+
+        if (sessionExercise is null || sessionExercise.WorkoutSession.UserId != userId)
+        {
+            throw new NotFoundException("Session exercise not found.");
+        }
+
+        var programId = sessionExercise.WorkoutSession.WorkoutProgramId;
+        var programExerciseId = sessionExercise.ProgramExerciseId;
+        var referenceExerciseId = sessionExercise.ExerciseId;
+        var customExerciseName = sessionExercise.CustomExerciseName;
+
+        var progressionQuery = _dbContext.WorkoutSessionExercises
+            .AsNoTracking()
+            .Include(e => e.WorkoutSession)
+            .Include(e => e.Sets)
+            .Where(e =>
+                e.WorkoutSession.UserId == userId &&
+                e.WorkoutSession.WorkoutProgramId == programId &&
+                e.WorkoutSession.CompletedAt != null);
+
+        if (programExerciseId.HasValue)
+        {
+            progressionQuery = progressionQuery.Where(e => e.ProgramExerciseId == programExerciseId);
+        }
+        else if (referenceExerciseId.HasValue)
+        {
+            progressionQuery = progressionQuery.Where(e => e.ExerciseId == referenceExerciseId);
+        }
+        else if (!string.IsNullOrWhiteSpace(customExerciseName))
+        {
+            progressionQuery = progressionQuery.Where(e => e.CustomExerciseName == customExerciseName);
+        }
+        else
+        {
+            return Array.Empty<WorkoutSessionExerciseProgressPointDto>();
+        }
+
+        var progressionExercises = await progressionQuery
+            .OrderBy(e => e.WorkoutSession.CompletedAt)
+            .ToListAsync(cancellationToken);
+
+        var results = progressionExercises
+            .Select(e =>
+            {
+                var totalWeight = e.Sets
+                    .Where(s => s.ActualWeight.HasValue && s.ActualReps.HasValue)
+                    .Select(s => s.ActualWeight!.Value * s.ActualReps!.Value)
+                    .DefaultIfEmpty(0m)
+                    .Sum();
+
+                return new WorkoutSessionExerciseProgressPointDto(
+                    e.WorkoutSessionId,
+                    e.Id,
+                    e.WorkoutSession.CompletedAt!.Value,
+                    totalWeight);
+            })
+            .ToList();
+
+        return results;
     }
 
     public async Task<WorkoutSessionDto> UpdateSetAsync(Guid userId, Guid sessionId, Guid setId, UpdateSessionSetRequest request, CancellationToken cancellationToken = default)
@@ -193,6 +284,8 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
     public async Task<WorkoutSessionDto> CompleteSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default)
     {
         var session = await _dbContext.WorkoutSessions
+            .Include(s => s.Exercises)
+                .ThenInclude(e => e.Sets)
             .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId, cancellationToken);
 
         if (session is null)
@@ -207,6 +300,7 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
 
         session.CompletedAt = _clock.UtcNow;
         session.UpdatedAt = _clock.UtcNow;
+        session.TotalWeightLiftedKg = CalculateTotalWeightLifted(session);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return await GetSessionAsync(userId, sessionId, cancellationToken);
@@ -600,6 +694,26 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
                             s.ActualDurationSeconds,
                             s.IsUserAdded))
                         .ToList()))
-                .ToList());
+                .ToList(),
+            session.TotalWeightLiftedKg);
+    }
+
+    private static decimal CalculateTotalWeightLifted(WorkoutSession session)
+    {
+        var total = 0m;
+        var loggedSetFound = false;
+
+        foreach (var set in session.Exercises.SelectMany(e => e.Sets))
+        {
+            if (!set.ActualWeight.HasValue || !set.ActualReps.HasValue)
+            {
+                continue;
+            }
+
+            loggedSetFound = true;
+            total += set.ActualWeight.Value * set.ActualReps.Value;
+        }
+
+        return loggedSetFound ? total : 0m;
     }
 }

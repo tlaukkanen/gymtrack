@@ -3,13 +3,19 @@ import { exerciseApi, programsApi, sessionsApi } from '../../api/requests'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { useToast } from '../../components/feedback/ToastProvider'
-import { formatDate } from '../../utils/time'
 import { useNavigate } from 'react-router-dom'
-import { Edit, Play, Trash } from 'lucide-react'
+import ProgramCard from '../../components/dashboard/ProgramCard'
+import { useMemo } from 'react'
+import type { WorkoutSessionSummaryDto } from '../../types/api'
 
 const DashboardPage = () => {
   const { data: programs, isLoading } = useQuery({ queryKey: ['programs'], queryFn: programsApi.list })
   const { data: exercises } = useQuery({ queryKey: ['exercises'], queryFn: exerciseApi.list })
+  const { data: recentSessions } = useQuery({
+    queryKey: ['sessions', 'completed', 'recent'],
+    queryFn: () => sessionsApi.list({ status: 'Completed', page: 1, pageSize: 50 }),
+    staleTime: 10_000,
+  })
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { push } = useToast()
@@ -31,6 +37,17 @@ const DashboardPage = () => {
     },
     onError: () => push({ title: 'Unable to start session', tone: 'error' }),
   })
+
+  const latestSessionsByProgram = useMemo(() => {
+    const sessions = recentSessions?.items ?? []
+    const map = new Map<string, WorkoutSessionSummaryDto>()
+    for (const session of sessions) {
+      if (!map.has(session.programId)) {
+        map.set(session.programId, session)
+      }
+    }
+    return map
+  }, [recentSessions])
 
   return (
     <div className="grid" style={{ gap: '1.5rem' }}>
@@ -70,40 +87,16 @@ const DashboardPage = () => {
         )}
         <div className="grid grid-2">
           {programs?.map((program) => (
-            <Card key={program.id} className="card-muted">
-              <div className="section-header" style={{ alignItems: 'flex-start' }}>
-                <div>
-                  <h4>{program.name}</h4>
-                  {program.description && <p style={{ color: 'var(--text-muted)', marginTop: '0.3rem' }}>{program.description}</p>}
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                    {program.exerciseCount} exercises • created {formatDate(program.createdAt)}
-                  </p>
-                </div>
-                <Button variant="ghost" 
-                  startIcon={<Edit size={16} />}
-                  onClick={() => navigate(`/app/programs/${program.id}/edit`)}>
-                  Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  startIcon={<Trash size={16} />}
-                  onClick={() => deleteMutation.mutate(program.id)}
-                  disabled={deleteMutation.isPending}
-                >
-                  Delete
-                </Button>
-              </div>
-              <div className="field-row" style={{ marginTop: '1.25rem' }}>
-                <Button
-                  onClick={() => startSessionMutation.mutate(program.id)}
-                  startIcon={<Play size={16} />}
-                  disabled={startSessionMutation.isPending}
-                  fullWidth
-                >
-                  {startSessionMutation.isPending ? 'Starting…' : 'Start Workout'}
-                </Button>
-              </div>
-            </Card>
+            <ProgramCard
+              key={program.id}
+              program={program}
+              latestSession={latestSessionsByProgram.get(program.id)}
+              onEdit={() => navigate(`/app/programs/${program.id}/edit`)}
+              onDelete={() => deleteMutation.mutate(program.id)}
+              onStartSession={() => startSessionMutation.mutate(program.id)}
+              deletePending={deleteMutation.isPending && deleteMutation.variables === program.id}
+              startPending={startSessionMutation.isPending && startSessionMutation.variables === program.id}
+            />
           ))}
         </div>
       </section>

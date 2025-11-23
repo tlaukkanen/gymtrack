@@ -14,6 +14,8 @@ export interface BuilderExercise {
   sourceId?: string | null
   exerciseId: string
   exerciseName: string
+  primaryMuscle: string
+  secondaryMuscle?: string | null
   category: NormalizedCategory
   restSeconds: number
   notes?: string

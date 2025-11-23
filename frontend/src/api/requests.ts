@@ -20,6 +20,8 @@ import type {
   ExerciseDto,
   UserPreferenceDto,
   StartWorkoutSessionRequest,
+  WorkoutSessionProgressPointDto,
+  WorkoutSessionExerciseProgressPointDto,
 } from '../types/api'
 
 export const authApi = {
@@ -63,6 +65,12 @@ export const sessionsApi = {
   removeSet: (sessionId: string, setId: string) =>
     apiClient.delete<WorkoutSessionDto>(`/sessions/${sessionId}/sets/${setId}`).then((res) => res.data),
   remove: (sessionId: string) => apiClient.delete<void>(`/sessions/${sessionId}`),
+  progression: (programId: string) =>
+    apiClient.get<WorkoutSessionProgressPointDto[]>(`/programs/${programId}/sessions/progression`).then((res) => res.data),
+  exerciseProgression: (sessionId: string, sessionExerciseId: string) =>
+    apiClient
+      .get<WorkoutSessionExerciseProgressPointDto[]>(`/sessions/${sessionId}/exercises/${sessionExerciseId}/progression`)
+      .then((res) => res.data),
 }
 
 export const profileApi = {
