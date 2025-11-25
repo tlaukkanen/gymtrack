@@ -1,3 +1,4 @@
+import type { AxiosError } from 'axios'
 import { type CSSProperties } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -19,12 +20,13 @@ type FormValues = z.infer<typeof schema>
 
 const heroImageStyles: CSSProperties = {
   width: '100%',
-  maxHeight: 180,
+  display: 'block',
   objectFit: 'contain',
-  marginBottom: '1.5rem',
+  padding: '1rem',
+  borderRadius: '1.5rem',
   //filter: 'drop-shadow(0 25px 35px rgba(15, 15, 36, 0.35))',
-  WebkitMaskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
-  maskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
+  //WebkitMaskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
+  //maskImage: 'radial-gradient(circle at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 95%)',
 }
 
 const LoginPage = () => {
@@ -47,7 +49,7 @@ const LoginPage = () => {
       const redirect = (location.state as { from?: Location })?.from?.pathname ?? '/app/dashboard'
       navigate(redirect, { replace: true })
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ error?: string }>) => {
       push({ title: 'Login failed', description: error.response?.data?.error ?? 'Check your credentials', tone: 'error' })
     },
   })
@@ -58,11 +60,11 @@ const LoginPage = () => {
 
   return (
     <div className="main-content" style={{ maxWidth: 420, margin: '0 auto' }}>
-      <div className="card">
-        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', textAlign: 'center', fontWeight: 700 }}>GymTrack</h1>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <img src="/weights.png" alt="Weights" style={heroImageStyles} />
-        <h2>Sign in</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Access your programs and sessions.</p>
+        <div className='mt-5' style={{ padding: '0 1.5rem 1.5rem' }}>
+          <h2>Sign in</h2>
+        <p style={{ color: 'var(--text-muted)' }}>Your training programs and sessions.</p>
         <form onSubmit={handleSubmit(onSubmit)} className="grid" style={{ gap: '1rem', marginTop: '1.5rem' }}>
           <label className="field-group">
             <span>Email</span>
@@ -78,9 +80,10 @@ const LoginPage = () => {
             {mutation.isPending ? 'Signing in…' : 'Sign in'}
           </Button>
         </form>
-        <p style={{ marginTop: '1.25rem', fontSize: '0.9rem' }}>
-          New here? <Link to="/register">Create an account</Link>
-        </p>
+          <p style={{ marginTop: '1.25rem', fontSize: '0.9rem' }}>
+            New here? <Link to="/register">Create an account</Link>
+          </p>
+        </div>
       </div>
       <footer style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
         <p style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.35rem', margin: 0 }}>
