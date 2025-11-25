@@ -46,7 +46,7 @@ const AppLayout = () => {
       <aside
         id="app-sidebar"
         className={clsx(
-          'sidebar border border-white/10 bg-surface/90 shadow-card backdrop-blur',
+          'sidebar border border-surface-darkest bg-surface shadow-card',
           isSidebarOpen && 'sidebar-open'
         )}
       >
@@ -61,7 +61,7 @@ const AppLayout = () => {
                 clsx(
                   'nav-link transition-colors duration-150',
                   isActive
-                    ? 'bg-brand/20 text-text-primary border-brand/40'
+                    ? 'bg-brand/15 text-text-primary border-brand/30'
                     : 'hover:bg-brand/10 hover:text-text-primary border-transparent'
                 )
               }
@@ -84,7 +84,7 @@ const AppLayout = () => {
           </Button>
         </div>
       </aside>
-      <main className="main-content bg-gradient-to-b from-surface-darkest via-surface to-surface-darkest/80">
+      <main className="main-content bg-surface-darkest">
         <div className="mobile-top-bar">
           <button
             type="button"

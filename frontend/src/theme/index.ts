@@ -2,32 +2,32 @@ import { createTheme } from '@mui/material/styles'
 
 export const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
-      main: '#38bdf8',
-      dark: '#0ea5e9',
-      light: '#7dd3fc',
-      contrastText: '#061121',
+      main: '#0ea5e9',
+      dark: '#0284c7',
+      light: '#38bdf8',
+      contrastText: '#ffffff',
     },
     secondary: {
       main: '#f97316',
       dark: '#ea580c',
       light: '#fdba74',
-      contrastText: '#060b1b',
+      contrastText: '#ffffff',
     },
     background: {
-      default: '#060b1b',
-      paper: '#0f172a',
+      default: '#f8fafc',
+      paper: '#ffffff',
     },
     text: {
-      primary: '#f1f5f9',
-      secondary: '#cbd5f5',
+      primary: '#0f172a',
+      secondary: '#64748b',
     },
     error: {
-      main: '#f87171',
+      main: '#ef4444',
     },
     success: {
-      main: '#4ade80',
+      main: '#22c55e',
     },
   },
   shape: {
@@ -52,8 +52,8 @@ export const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: '#060b1b',
-          color: '#f1f5f9',
+          backgroundColor: '#f8fafc',
+          color: '#0f172a',
         },
       },
     },
