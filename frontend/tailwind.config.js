@@ -8,21 +8,21 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#38bdf8',
-          dark: '#0ea5e9',
-          light: '#7dd3fc',
+          DEFAULT: '#0ea5e9',
+          dark: '#0284c7',
+          light: '#38bdf8',
         },
         surface: {
-          DEFAULT: '#0f172a',
-          muted: '#1e293b',
-          darkest: '#060b1b',
+          DEFAULT: '#ffffff',
+          muted: '#f1f5f9',
+          darkest: '#e2e8f0',
         },
         text: {
-          primary: '#f1f5f9',
-          muted: '#cbd5f5',
+          primary: '#0f172a',
+          muted: '#64748b',
         },
-        success: '#4ade80',
-        danger: '#f87171',
+        success: '#22c55e',
+        danger: '#ef4444',
       },
       fontFamily: {
         sans: ['Inter', 'var(--font-inter)', ...defaultTheme.fontFamily.sans],
@@ -32,7 +32,7 @@ export default {
         '2xl': '1.5rem',
       },
       boxShadow: {
-        card: '0 20px 60px rgba(2, 6, 23, 0.6)',
+        card: '0 10px 40px rgba(15, 23, 42, 0.08)',
       },
     },
   },
