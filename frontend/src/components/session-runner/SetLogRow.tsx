@@ -23,9 +23,21 @@ export interface SetLogRowProps {
   disabled?: boolean
   isActive?: boolean
   isCompleted?: boolean
+  showFieldLabels?: boolean
 }
 
-export const SetLogRow = ({ set, category, onSave, isSaving, canRemove, onRemove, disabled, isActive = false, isCompleted = false }: SetLogRowProps) => {
+export const SetLogRow = ({
+  set,
+  category,
+  onSave,
+  isSaving,
+  canRemove,
+  onRemove,
+  disabled,
+  isActive = false,
+  isCompleted = false,
+  showFieldLabels = false,
+}: SetLogRowProps) => {
   const [weight, setWeight] = useState<string>(resolveInitialValue(set.actualWeight, set.plannedWeight))
   const [reps, setReps] = useState<string>(resolveInitialValue(set.actualReps, set.plannedReps))
   const [duration, setDuration] = useState<string>(resolveInitialValue(set.actualDurationSeconds, set.plannedDurationSeconds))
@@ -62,6 +74,13 @@ export const SetLogRow = ({ set, category, onSave, isSaving, canRemove, onRemove
     isActive && 'border-[var(--accent)] bg-[rgba(14,165,233,0.08)] shadow-[0_0_0_1px_rgba(14,165,233,0.25)]',
   )
 
+  const headerRowClasses = 'flex w-full flex-nowrap items-center gap-2 px-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--text-muted)] sm:gap-3 sm:px-2'
+  const indexColumnClass = 'flex min-w-[30px] shrink-0 flex-col items-center justify-center text-xs text-[var(--text-muted)]'
+  const weightFieldClass = 'flex-1 min-w-[30px] max-w-[140px] sm:max-w-none'
+  const repsFieldClass = 'flex-1 min-w-[68px] max-w-[140px] sm:max-w-none'
+  const cardioFieldClass = 'flex-1 min-w-[120px]'
+  const actionsColumnClass = 'flex min-w-[90px] shrink-0 items-center justify-end gap-1 sm:min-w-[120px] sm:gap-2'
+
   const completedFieldSx = isCompleted
     ? {
         '& .MuiOutlinedInput-root': {
@@ -77,65 +96,80 @@ export const SetLogRow = ({ set, category, onSave, isSaving, canRemove, onRemove
     : undefined
 
   return (
-    <div className={rowClasses} data-active={isActive} data-completed={isCompleted}>
-      <div className="flex min-w-[30px] shrink-0 flex-col items-center justify-center text-xs text-[var(--text-muted)]">
-        <span className="text-sm font-semibold text-[var(--text)]">#{set.setIndex}</span>
-        {isCompleted && <span className="h-1 w-full rounded-full bg-[rgba(16,185,129,0.9)]" aria-hidden="true" />}
-      </div>
-      {isCardio ? (
-        <div className="flex-1 min-w-[120px]">
-          <TextField
-            size="small"
-            label="Duration (sec)"
-            value={duration}
-            onChange={(event) => setDuration(event.target.value)}
-            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-            placeholder={plannedDurationPlaceholder}
-            disabled={disabled}
-            fullWidth
-            sx={completedFieldSx}
-          />
+    <>
+      {showFieldLabels && (
+        <div className={headerRowClasses} aria-hidden="true">
+          <div className="min-w-[30px] shrink-0 text-center">#</div>
+          {isCardio ? (
+            <div className={cardioFieldClass}>Duration (sec)</div>
+          ) : (
+            <>
+              <div className={weightFieldClass}>Weight</div>
+              <div className={repsFieldClass}>Reps</div>
+            </>
+          )}
+          <div className="min-w-[90px] shrink-0 text-right sm:min-w-[120px]">Actions</div>
         </div>
-      ) : (
-        <>
-          <div className="flex-1 min-w-[30px] max-w-[140px] sm:max-w-none">
-            <TextField
-              size="small"
-              label="Weight"
-              value={weight}
-              onChange={(event) => setWeight(event.target.value)}
-              inputProps={{ inputMode: 'decimal', pattern: '[0-9]*' }}
-              placeholder={plannedWeightPlaceholder}
-              disabled={disabled}
-              fullWidth
-              sx={completedFieldSx}
-            />
-          </div>
-          <div className="flex-1 min-w-[68px] max-w-[140px] sm:max-w-none">
-            <TextField
-              size="small"
-              label="Reps"
-              value={reps}
-              onChange={(event) => setReps(event.target.value)}
-              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
-              placeholder={plannedRepsPlaceholder}
-              disabled={disabled}
-              fullWidth
-              sx={completedFieldSx}
-            />
-          </div>
-        </>
       )}
-      <Tooltip title={actionTooltip} placement="top">
-        <span className="inline-flex shrink-0">
-          <IconButton onClick={handleSave} disabled={isActionDisabled} color="success">
-            <Check size={18} />
+      <div className={rowClasses} data-active={isActive} data-completed={isCompleted}>
+        <div className={indexColumnClass}>
+          <span className="text-sm font-semibold text-[var(--text)]">#{set.setIndex}</span>
+          {isCompleted && <span className="h-1 w-full rounded-full bg-[rgba(16,185,129,0.9)]" aria-hidden="true" />}
+        </div>
+        {isCardio ? (
+          <div className={cardioFieldClass}>
+            <TextField
+              size="small"
+              value={duration}
+              onChange={(event) => setDuration(event.target.value)}
+              inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', 'aria-label': 'Actual duration in seconds' }}
+              placeholder={plannedDurationPlaceholder}
+              disabled={disabled}
+              fullWidth
+              sx={completedFieldSx}
+            />
+          </div>
+        ) : (
+          <>
+            <div className={weightFieldClass}>
+              <TextField
+                size="small"
+                value={weight}
+                onChange={(event) => setWeight(event.target.value)}
+                inputProps={{ inputMode: 'decimal', pattern: '[0-9]*', 'aria-label': 'Actual weight' }}
+                placeholder={plannedWeightPlaceholder}
+                disabled={disabled}
+                fullWidth
+                sx={completedFieldSx}
+              />
+            </div>
+            <div className={repsFieldClass}>
+              <TextField
+                size="small"
+                value={reps}
+                onChange={(event) => setReps(event.target.value)}
+                inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', 'aria-label': 'Actual repetitions' }}
+                placeholder={plannedRepsPlaceholder}
+                disabled={disabled}
+                fullWidth
+                sx={completedFieldSx}
+              />
+            </div>
+          </>
+        )}
+        <div className={actionsColumnClass}>
+          <Tooltip title={actionTooltip} placement="top">
+            <span className="inline-flex">
+              <IconButton onClick={handleSave} disabled={isActionDisabled} color="success">
+                <Check size={18} />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <IconButton onClick={onRemove} disabled={!canRemove || !onRemove || disabled} color="error">
+            <Trash2 size={18} />
           </IconButton>
-        </span>
-      </Tooltip>
-      <IconButton className="shrink-0" onClick={onRemove} disabled={!canRemove || !onRemove || disabled} color="error">
-        <Trash2 size={18} />
-      </IconButton>
-    </div>
+        </div>
+      </div>
+    </>
   )
 }

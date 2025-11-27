@@ -255,7 +255,7 @@ export const ExerciseDetailsPanel = ({
 
       <Stack spacing={1.5}>
         <Typography variant="h6">Sets</Typography>
-        {exercise.sets.map((set) => {
+        {exercise.sets.map((set, setIndex) => {
           const completed = isSetCompleted(set)
           const isActiveSet = !isSessionCompleted && !completed && activeSetId === set.id
 
@@ -271,6 +271,7 @@ export const ExerciseDetailsPanel = ({
               disabled={isSessionCompleted}
               isActive={isActiveSet}
               isCompleted={completed}
+              showFieldLabels={setIndex === 0}
             />
           )
         })}

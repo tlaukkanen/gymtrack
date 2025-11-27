@@ -31,7 +31,7 @@ const BuilderSetRow = ({ category, set, index, showFieldLabels, onChange, onRemo
       {showFieldLabels && (
         <div className={`${baseRowClass} builder-set-row--labels`} aria-hidden="true">
           <div className="builder-set-index">
-            <span className="builder-set-index__label">Set</span>
+            <span className="builder-set-index__label">#</span>
           </div>
           {category === 'Strength' ? (
             <>
