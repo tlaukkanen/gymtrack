@@ -143,7 +143,7 @@ export const ExerciseDetailsPanel = ({
           }}
         >
           <TextField
-            label="Rest seconds"
+            label="Rest seconds between sets"
             type="number"
             value={restSeconds}
             onChange={(event) => {
@@ -258,6 +258,7 @@ export const ExerciseDetailsPanel = ({
         {exercise.sets.map((set, setIndex) => {
           const completed = isSetCompleted(set)
           const isActiveSet = !isSessionCompleted && !completed && activeSetId === set.id
+          const isLastSet = setIndex === exercise.sets.length - 1
 
           return (
             <SetLogRow
@@ -272,6 +273,7 @@ export const ExerciseDetailsPanel = ({
               isActive={isActiveSet}
               isCompleted={completed}
               showFieldLabels={setIndex === 0}
+              onSetCompleted={!isLastSet && exercise.restSeconds > 0 ? () => onStartTimer(exercise.restSeconds) : undefined}
             />
           )
         })}
