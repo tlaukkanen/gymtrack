@@ -24,6 +24,7 @@ export interface SetLogRowProps {
   isActive?: boolean
   isCompleted?: boolean
   showFieldLabels?: boolean
+  onSetCompleted?: () => void
 }
 
 export const SetLogRow = ({
@@ -37,6 +38,7 @@ export const SetLogRow = ({
   isActive = false,
   isCompleted = false,
   showFieldLabels = false,
+  onSetCompleted,
 }: SetLogRowProps) => {
   const [weight, setWeight] = useState<string>(resolveInitialValue(set.actualWeight, set.plannedWeight))
   const [reps, setReps] = useState<string>(resolveInitialValue(set.actualReps, set.plannedReps))
@@ -53,6 +55,7 @@ export const SetLogRow = ({
     const normalizedNumber = (value: string) => (value === '' ? null : Number(value))
     if (isCardio) {
       onSave({ actualDurationSeconds: normalizedNumber(duration), actualWeight: null, actualReps: null })
+      onSetCompleted?.()
       return
     }
 
@@ -61,6 +64,7 @@ export const SetLogRow = ({
       actualReps: normalizedNumber(reps),
       actualDurationSeconds: null,
     })
+    onSetCompleted?.()
   }
 
   const plannedWeightPlaceholder = set.plannedWeight != null ? set.plannedWeight.toString() : undefined
