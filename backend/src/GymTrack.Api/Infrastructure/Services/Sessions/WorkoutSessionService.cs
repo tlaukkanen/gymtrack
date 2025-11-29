@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using GymTrack.Application.Abstractions;
 using GymTrack.Application.Contracts.Sessions;
@@ -85,7 +87,7 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         await LoadSessionGraphAsync(session, cancellationToken);
-        return MapSession(session);
+        return await MapSessionAsync(session, cancellationToken);
     }
 
     public async Task<WorkoutSessionDto> GetSessionAsync(Guid userId, Guid sessionId, CancellationToken cancellationToken = default)
@@ -98,7 +100,7 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
             throw new NotFoundException("Workout session not found.");
         }
 
-        return MapSession(session);
+        return await MapSessionAsync(session, cancellationToken);
     }
 
     public async Task<PagedResult<WorkoutSessionSummaryDto>> ListSessionsAsync(Guid userId, SessionListQuery query, CancellationToken cancellationToken = default)
@@ -516,7 +518,12 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         return await GetSessionAsync(userId, sessionId, cancellationToken);
     }
 
-    public async Task<WorkoutSessionDto> RemoveSetAsync(Guid userId, Guid sessionId, Guid setId, CancellationToken cancellationToken = default)
+    public async Task<WorkoutSessionDto> RemoveSetAsync(
+        Guid userId,
+        Guid sessionId,
+        Guid setId,
+        bool allowPlannedRemoval = false,
+        CancellationToken cancellationToken = default)
     {
         var set = await _dbContext.WorkoutSessionSets
             .Include(s => s.WorkoutSessionExercise)
@@ -530,7 +537,7 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
 
         EnsureSessionNotCompleted(set.WorkoutSessionExercise.WorkoutSession);
 
-        if (!set.IsUserAdded && !set.WorkoutSessionExercise.IsAdHoc)
+        if (!allowPlannedRemoval && !set.IsUserAdded && !set.WorkoutSessionExercise.IsAdHoc)
         {
             throw new ValidationException("Only user-added sets can be removed for planned exercises.");
         }
@@ -655,7 +662,98 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         }
     }
 
-    private static WorkoutSessionDto MapSession(WorkoutSession session)
+    private async Task<WorkoutSessionDto> MapSessionAsync(WorkoutSession session, CancellationToken cancellationToken)
+    {
+        var lastSetLookup = await BuildLastSetLookupAsync(session, cancellationToken);
+        return MapSession(session, lastSetLookup);
+    }
+
+    private async Task<IReadOnlyDictionary<Guid, IReadOnlyDictionary<int, SetHistorySnapshot>>> BuildLastSetLookupAsync(
+        WorkoutSession session,
+        CancellationToken cancellationToken)
+    {
+        var exerciseKeys = session.Exercises
+            .Select(exercise => new
+            {
+                Exercise = exercise,
+                Key = ExerciseMatchKey.From(exercise)
+            })
+            .Where(pair => !pair.Key.IsEmpty)
+            .ToList();
+
+        if (exerciseKeys.Count == 0)
+        {
+            return new Dictionary<Guid, IReadOnlyDictionary<int, SetHistorySnapshot>>();
+        }
+
+        var previousExercises = await _dbContext.WorkoutSessionExercises
+            .AsNoTracking()
+            .Include(e => e.Sets)
+            .Include(e => e.WorkoutSession)
+            .Where(e =>
+                e.WorkoutSession.UserId == session.UserId &&
+                e.WorkoutSession.WorkoutProgramId == session.WorkoutProgramId &&
+                e.WorkoutSession.CompletedAt != null &&
+                e.WorkoutSession.StartedAt < session.StartedAt)
+            .OrderByDescending(e => e.WorkoutSession.CompletedAt ?? e.WorkoutSession.StartedAt)
+            .ThenByDescending(e => e.WorkoutSession.StartedAt)
+            .ToListAsync(cancellationToken);
+
+        if (previousExercises.Count == 0)
+        {
+            return new Dictionary<Guid, IReadOnlyDictionary<int, SetHistorySnapshot>>();
+        }
+
+        var latestByKey = new Dictionary<ExerciseMatchKey, WorkoutSessionExercise>(ExerciseMatchKeyComparer.Instance);
+
+        foreach (var previousExercise in previousExercises)
+        {
+            var key = ExerciseMatchKey.From(previousExercise);
+            if (key.IsEmpty)
+            {
+                continue;
+            }
+
+            if (!latestByKey.ContainsKey(key))
+            {
+                latestByKey[key] = previousExercise;
+            }
+        }
+
+        var result = new Dictionary<Guid, IReadOnlyDictionary<int, SetHistorySnapshot>>();
+
+        foreach (var pair in exerciseKeys)
+        {
+            if (!latestByKey.TryGetValue(pair.Key, out var historyExercise))
+            {
+                continue;
+            }
+
+            var setLookup = historyExercise.Sets
+                .GroupBy(s => s.SetIndex)
+                .ToDictionary(
+                    group => group.Key,
+                    group =>
+                    {
+                        var set = group
+                            .OrderByDescending(s => s.UpdatedAt ?? s.CreatedAt)
+                            .First();
+
+                        return new SetHistorySnapshot(
+                            set.ActualWeight ?? set.PlannedWeight,
+                            set.ActualReps ?? set.PlannedReps,
+                            set.ActualDurationSeconds ?? set.PlannedDurationSeconds);
+                    });
+
+            result[pair.Exercise.Id] = setLookup;
+        }
+
+        return result;
+    }
+
+    private static WorkoutSessionDto MapSession(
+        WorkoutSession session,
+        IReadOnlyDictionary<Guid, IReadOnlyDictionary<int, SetHistorySnapshot>> lastSetLookup)
     {
         return new WorkoutSessionDto(
             session.Id,
@@ -666,32 +764,103 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
             session.Exercises
                 .OrderBy(e => e.OrderPerformed)
                 .ThenBy(e => e.CreatedAt)
-                .Select(e => new WorkoutSessionExerciseDto(
-                    e.Id,
-                    e.ExerciseId,
-                    e.IsAdHoc ? (e.CustomExerciseName ?? e.Exercise?.Name ?? "Custom Exercise") : e.Exercise?.Name ?? e.CustomExerciseName ?? string.Empty,
-                    e.CustomExerciseName,
-                    e.IsAdHoc,
-                    e.ExerciseId.HasValue,
-                    e.Notes,
-                    e.OrderPerformed,
-                    e.RestSeconds,
-                    e.Sets
+                .Select(e =>
+                {
+                    lastSetLookup.TryGetValue(e.Id, out var historySets);
+
+                    var mappedSets = e.Sets
                         .OrderBy(s => s.SetIndex)
-                        .Select(s => new WorkoutSessionSetDto(
-                            s.Id,
-                            s.SetIndex,
-                            s.PlannedWeight,
-                            s.PlannedReps,
-                            s.PlannedDurationSeconds,
-                            s.ActualWeight,
-                            s.ActualReps,
-                            s.ActualDurationSeconds,
-                            s.IsUserAdded))
-                        .ToList()))
+                        .Select(s =>
+                        {
+                            SetHistorySnapshot? lastSnapshot = null;
+                            if (historySets != null && historySets.TryGetValue(s.SetIndex, out var snapshot))
+                            {
+                                lastSnapshot = snapshot;
+                            }
+
+                            return new WorkoutSessionSetDto(
+                                s.Id,
+                                s.SetIndex,
+                                s.PlannedWeight,
+                                s.PlannedReps,
+                                s.PlannedDurationSeconds,
+                                s.ActualWeight,
+                                s.ActualReps,
+                                s.ActualDurationSeconds,
+                                s.IsUserAdded,
+                                lastSnapshot?.Weight,
+                                lastSnapshot?.Reps,
+                                lastSnapshot?.DurationSeconds);
+                        })
+                        .ToList();
+
+                    return new WorkoutSessionExerciseDto(
+                        e.Id,
+                        e.ExerciseId,
+                        e.IsAdHoc ? (e.CustomExerciseName ?? e.Exercise?.Name ?? "Custom Exercise") : e.Exercise?.Name ?? e.CustomExerciseName ?? string.Empty,
+                        e.CustomExerciseName,
+                        e.IsAdHoc,
+                        e.ExerciseId.HasValue,
+                        e.Notes,
+                        e.OrderPerformed,
+                        e.RestSeconds,
+                        mappedSets);
+                })
                 .ToList(),
             session.TotalWeightLiftedKg);
     }
+
+    private sealed record ExerciseMatchKey(Guid? ProgramExerciseId, Guid? ExerciseId, string? CustomExerciseName)
+    {
+        public bool IsEmpty => ProgramExerciseId is null && ExerciseId is null && CustomExerciseName is null;
+
+        public static ExerciseMatchKey From(WorkoutSessionExercise exercise)
+        {
+            return new ExerciseMatchKey(
+                exercise.ProgramExerciseId,
+                exercise.ExerciseId,
+                NormalizeCustomName(exercise.CustomExerciseName));
+        }
+
+        private static string? NormalizeCustomName(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            return value.Trim().ToLowerInvariant();
+        }
+    }
+
+    private sealed class ExerciseMatchKeyComparer : IEqualityComparer<ExerciseMatchKey>
+    {
+        public static ExerciseMatchKeyComparer Instance { get; } = new();
+
+        public bool Equals(ExerciseMatchKey? x, ExerciseMatchKey? y)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                return true;
+            }
+
+            if (x is null || y is null)
+            {
+                return false;
+            }
+
+            return x.ProgramExerciseId == y.ProgramExerciseId &&
+                x.ExerciseId == y.ExerciseId &&
+                string.Equals(x.CustomExerciseName, y.CustomExerciseName, StringComparison.Ordinal);
+        }
+
+        public int GetHashCode(ExerciseMatchKey obj)
+        {
+            return HashCode.Combine(obj.ProgramExerciseId, obj.ExerciseId, obj.CustomExerciseName);
+        }
+    }
+
+    private sealed record SetHistorySnapshot(decimal? Weight, int? Reps, int? DurationSeconds);
 
     private static decimal CalculateTotalWeightLifted(WorkoutSession session)
     {

@@ -83,6 +83,9 @@ export interface WorkoutSessionSetDto {
   actualReps?: number | null
   actualDurationSeconds?: number | null
   isUserAdded: boolean
+  lastWeight?: number | null
+  lastReps?: number | null
+  lastDurationSeconds?: number | null
 }
 
 export interface WorkoutSessionExerciseDto {

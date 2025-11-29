@@ -11,7 +11,10 @@ public record WorkoutSessionSetDto(
     decimal? ActualWeight,
     int? ActualReps,
     int? ActualDurationSeconds,
-    bool IsUserAdded
+    bool IsUserAdded,
+    decimal? LastWeight,
+    int? LastReps,
+    int? LastDurationSeconds
 );
 
 public record WorkoutSessionExerciseDto(

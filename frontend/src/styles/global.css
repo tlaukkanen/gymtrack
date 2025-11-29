@@ -459,8 +459,6 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.85rem;
   padding: 0.85rem 1rem;
   background: #ffffff;
 }
@@ -469,31 +467,6 @@ textarea {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.exercise-list-item--reorder {
-  cursor: grab;
-}
-
-.exercise-list-item.dragging {
-  opacity: 0.7;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-}
-
-.reorder-handle {
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: #f1f5f9;
-  color: var(--text-muted);
-  cursor: grab;
-  padding: 0.35rem 0.55rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.reorder-handle:active {
-  cursor: grabbing;
 }
 
 .exercise-list-item.active {
@@ -523,7 +496,7 @@ textarea {
     position: sticky;
     top: 0;
     z-index: 20;
-    padding: 0.5rem 0 0.75rem;
+    padding: 0 0 0.75rem;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
@@ -547,14 +520,11 @@ textarea {
 
   .mobile-exercise-slide {
     flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 0.95rem;
     padding: 0.6rem 0.75rem;
-    background: #ffffff;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-height: 96px;
+    min-height: 86px;
   }
 
   .mobile-exercise-slide button {
@@ -577,12 +547,6 @@ textarea {
     font-size: 0.8rem;
     color: var(--text-muted);
   }
-
-  .reorder-actions--mobile {
-    flex-direction: row;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
 }
 
 .exercise-list-item button {
@@ -598,12 +562,6 @@ textarea {
   margin: 0.1rem 0 0;
   color: var(--text-muted);
   font-size: 0.85rem;
-}
-
-.reorder-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
 }
 
 .toast-container {

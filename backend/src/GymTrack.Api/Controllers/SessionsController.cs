@@ -290,12 +290,21 @@ public class SessionsController : ControllerBase
     }
 
     [HttpDelete("{sessionId:guid}/sets/{setId:guid}")]
-    public async Task<ActionResult<WorkoutSessionDto>> RemoveSet(Guid sessionId, Guid setId, CancellationToken cancellationToken)
+    public async Task<ActionResult<WorkoutSessionDto>> RemoveSet(
+        Guid sessionId,
+        Guid setId,
+        [FromQuery] bool force = false,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             var userId = User.GetUserId();
-            var session = await _sessionService.RemoveSetAsync(userId, sessionId, setId, cancellationToken);
+            var session = await _sessionService.RemoveSetAsync(
+                userId,
+                sessionId,
+                setId,
+                force,
+                cancellationToken);
             return Ok(session);
         }
         catch (NotFoundException ex)

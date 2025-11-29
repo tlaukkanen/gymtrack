@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Chip, Divider, IconButton, Stack, TextField, Typography, useMediaQuery } from '@mui/material'
-import { ArrowRight, CheckCircle, Pause, Play, Plus, RefreshCcw } from 'lucide-react'
+import { ArrowRight, CheckCircle, Pause, Play, Plus, RefreshCcw, Trash2 } from 'lucide-react'
 
 import type { WorkoutSessionExerciseDto, WorkoutSessionSetDto } from '../../types/api'
 import { Button } from '../ui/Button'
 import { SetLogRow } from './SetLogRow'
 
 type SessionExerciseCategory = 'Strength' | 'Cardio'
+
+const QUICK_ADD_SECONDS = [15, 30, 60] as const
 
 const formatTimer = (remainingMs: number) => {
   if (remainingMs <= 0) return '00:00'
@@ -52,7 +54,7 @@ interface ExerciseDetailsPanelProps {
   onSaveDetails: (payload: { restSeconds: number; notes: string }) => void
   onAddSet: () => void
   onSaveSet: (setId: string, body: { actualWeight?: number | null; actualReps?: number | null; actualDurationSeconds?: number | null }) => void
-  onRemoveSet: (set: WorkoutSessionSetDto) => void
+  onRemoveSet: (set: WorkoutSessionSetDto, options?: { force?: boolean }) => void
   onRemoveExercise?: () => void
   canRemoveExercise: boolean
   isUpdateExercisePending: boolean
@@ -90,8 +92,27 @@ export const ExerciseDetailsPanel = ({
 }: ExerciseDetailsPanelProps) => {
   const [restSeconds, setRestSeconds] = useState<number>(exercise.restSeconds)
   const [notes, setNotes] = useState<string>(exercise.notes ?? '')
+  const [stickyOffset, setStickyOffset] = useState(0)
+  const [isTimerPinned, setIsTimerPinned] = useState(false)
+  const stickySentinelRef = useRef<HTMLDivElement | null>(null)
   const isMobile = useMediaQuery('(max-width:600px)')
   const exerciseCategory = useMemo(() => deriveExerciseCategory(exercise), [exercise])
+  const isStickyTimer = !isSessionCompleted && isMobile
+  const quickAddSeconds = useMemo(() => (restOptions.length ? restOptions : QUICK_ADD_SECONDS).slice(0, 3), [restOptions])
+  const showQuickAddChips = !(isStickyTimer && isTimerPinned)
+  const timerButtonSize = isTimerPinned ? 'medium' : isMobile ? 'large' : 'medium'
+  const timerButtonMin = isTimerPinned ? 48 : isMobile ? 64 : undefined
+  const timerStackSpacing = isTimerPinned ? 1 : isMobile ? 0.8 : 2
+  const timerControlSpacing = isTimerPinned ? 0.5 : 1
+
+  const handleIncrementTimer = useCallback(
+    (incrementSeconds: number) => {
+      if (isSessionCompleted) return
+      const baseSeconds = Math.ceil(Math.max(0, timerRemainingMs) / 1000)
+      onStartTimer(baseSeconds + incrementSeconds)
+    },
+    [isSessionCompleted, onStartTimer, timerRemainingMs],
+  )
 
   const isSetCompleted = useCallback(
     (sessionSet: WorkoutSessionSetDto) => {
@@ -113,12 +134,59 @@ export const ExerciseDetailsPanel = ({
     setNotes(exercise.notes ?? '')
   }, [exercise.id, exercise.notes, exercise.restSeconds])
 
+  useEffect(() => {
+    if (!isStickyTimer || typeof window === 'undefined') {
+      setStickyOffset(0)
+      return undefined
+    }
+    const shell = document.querySelector<HTMLElement>('.mobile-exercise-shell')
+    if (!shell) {
+      setStickyOffset(0)
+      return undefined
+    }
+    const updateOffset = () => {
+      const rect = shell.getBoundingClientRect()
+      setStickyOffset(rect.height + 12)
+    }
+    updateOffset()
+    const observer = new ResizeObserver(updateOffset)
+    observer.observe(shell)
+    return () => observer.disconnect()
+  }, [isStickyTimer])
+
+  useEffect(() => {
+    if (!isStickyTimer) {
+      setIsTimerPinned(false)
+      return undefined
+    }
+    const sentinel = stickySentinelRef.current
+    if (!sentinel || typeof IntersectionObserver === 'undefined') {
+      setIsTimerPinned(false)
+      return undefined
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTimerPinned(!entry.isIntersecting)
+      },
+      { threshold: 1 },
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [isStickyTimer])
+
   const handleSaveDetails = () => {
     onSaveDetails({ restSeconds, notes })
   }
 
   const shouldShowExerciseCta = !isSessionCompleted && isExerciseCompleted
   const isLastExercise = shouldShowExerciseCta && !hasNextExercise
+  const lastSet = exercise.sets.length > 0 ? exercise.sets[exercise.sets.length - 1] : undefined
+  const canRemoveLastSet = Boolean(lastSet && !isSessionCompleted)
+
+  const handleRemoveLastSet = () => {
+    if (!lastSet || !canRemoveLastSet) return
+    onRemoveSet(lastSet, { force: true })
+  }
 
   return (
     <Stack spacing={3}>
@@ -173,14 +241,31 @@ export const ExerciseDetailsPanel = ({
         <>
           <Divider />
 
-          <Box>
-            <Typography variant="subtitle2" gutterBottom>
-              Rest timer
-            </Typography>
-            <Stack spacing={isMobile ? 1.5 : 2}>
+          {isMobile && <div ref={stickySentinelRef} aria-hidden style={{ height: 1, marginBottom: -1 }} />}
+          <Box
+            sx={(theme) => ({
+              position: isStickyTimer ? 'sticky' : 'static',
+              top: isStickyTimer ? `${Math.max(stickyOffset, 16)}px` : 'auto',
+              zIndex: isStickyTimer ? theme.zIndex.appBar : 'auto',
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: isStickyTimer ? 1 : 0,
+              padding: isStickyTimer ? theme.spacing(1.25) : 0,
+              border: isStickyTimer ? `1px solid ${theme.palette.divider}` : 'none',
+              boxShadow: isStickyTimer ? theme.shadows[1] : 'none',
+              marginBottom: isStickyTimer ? theme.spacing(1) : 0,
+            })}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+              <Box>
+                <Typography variant="subtitle2" noWrap>
+                  Rest Timer
+                </Typography>
+              </Box>
+            </Stack>
+            <Stack spacing={timerStackSpacing}>
               <Stack
                 direction={isMobile ? 'column' : 'row'}
-                spacing={isMobile ? 1.5 : 2}
+                spacing={timerStackSpacing}
                 alignItems={isMobile ? 'stretch' : 'center'}
                 justifyContent="space-between"
                 flexWrap={isMobile ? 'nowrap' : 'wrap'}
@@ -190,14 +275,15 @@ export const ExerciseDetailsPanel = ({
                   sx={{
                     textAlign: isMobile ? 'center' : 'left',
                     flex: isMobile ? '1 1 auto' : '0 0 auto',
-                    lineHeight: 1.1,
+                    lineHeight: isMobile ? 0.6 : 1.1,
+                    fontSize: isStickyTimer ? 'clamp(1.75rem, 10vw, 3rem)' : undefined,
                   }}
                 >
                   {formatTimer(timerRemainingMs)}
                 </Box>
                 <Stack
                   direction="row"
-                  spacing={1}
+                  spacing={timerControlSpacing}
                   alignItems="center"
                   justifyContent={isMobile ? 'space-between' : 'flex-start'}
                   width={isMobile ? '100%' : 'auto'}
@@ -207,8 +293,8 @@ export const ExerciseDetailsPanel = ({
                     color="primary"
                     onClick={() => onStartTimer(exercise.restSeconds)}
                     disabled={isSessionCompleted}
-                    size={isMobile ? 'large' : 'medium'}
-                    sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
+                    size={timerButtonSize as 'small' | 'medium' | 'large'}
+                    sx={{ flex: isMobile ? 1 : undefined, minWidth: timerButtonMin, minHeight: timerButtonMin }}
                     aria-label="Start rest timer"
                   >
                     <Play size={isMobile ? 20 : 18} />
@@ -217,8 +303,8 @@ export const ExerciseDetailsPanel = ({
                     color="warning"
                     onClick={onPauseTimer}
                     disabled={isSessionCompleted}
-                    size={isMobile ? 'large' : 'medium'}
-                    sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
+                    size={timerButtonSize as 'small' | 'medium' | 'large'}
+                    sx={{ flex: isMobile ? 1 : undefined, minWidth: timerButtonMin, minHeight: timerButtonMin }}
                     aria-label="Pause rest timer"
                   >
                     <Pause size={isMobile ? 20 : 18} />
@@ -227,8 +313,8 @@ export const ExerciseDetailsPanel = ({
                     color="secondary"
                     onClick={onResetTimer}
                     disabled={isSessionCompleted}
-                    size={isMobile ? 'large' : 'medium'}
-                    sx={{ flex: isMobile ? 1 : undefined, minWidth: isMobile ? 64 : undefined, minHeight: isMobile ? 64 : undefined }}
+                    size={timerButtonSize as 'small' | 'medium' | 'large'}
+                    sx={{ flex: isMobile ? 1 : undefined, minWidth: timerButtonMin, minHeight: timerButtonMin }}
                     aria-label="Reset rest timer"
                   >
                     <RefreshCcw size={isMobile ? 20 : 18} />
@@ -236,17 +322,26 @@ export const ExerciseDetailsPanel = ({
                 </Stack>
               </Stack>
             </Stack>
-            <Stack
-              direction="row"
-              flexWrap="wrap"
-              marginTop={1}
-              justifyContent={isMobile ? 'center' : 'flex-start'}
-              sx={{ columnGap: isMobile ? 0.75 : 1, rowGap: isMobile ? 0.75 : 0.5 }}
-            >
-              {restOptions.map((value) => (
-                <Chip key={value} label={value === 0 ? 'No rest' : `${value}s`} clickable onClick={() => onStartTimer(value)} disabled={isSessionCompleted} />
-              ))}
-            </Stack>
+            {showQuickAddChips && (
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                marginTop={1}
+                justifyContent={isMobile ? 'center' : 'flex-start'}
+                sx={{ columnGap: isMobile ? 0.75 : 1, rowGap: isMobile ? 0.75 : 0.5 }}
+              >
+                {quickAddSeconds.map((value) => (
+                  <Chip
+                    key={value}
+                    label={`+${value}s`}
+                    clickable
+                    onClick={() => handleIncrementTimer(value)}
+                    disabled={isSessionCompleted}
+                    size={isMobile ? 'small' : 'medium'}
+                  />
+                ))}
+              </Stack>
+            )}
           </Box>
 
           <Divider />
@@ -265,10 +360,8 @@ export const ExerciseDetailsPanel = ({
               key={set.id}
               set={set}
               category={exerciseCategory}
-              canRemove={!isSessionCompleted && (set.isUserAdded || exercise.isAdHoc)}
               onSave={(body) => onSaveSet(set.id, body)}
               isSaving={isUpdateSetPending}
-              onRemove={!isSessionCompleted ? () => onRemoveSet(set) : undefined}
               disabled={isSessionCompleted}
               isActive={isActiveSet}
               isCompleted={completed}
@@ -279,11 +372,31 @@ export const ExerciseDetailsPanel = ({
         })}
       </Stack>
 
-      <Stack spacing={1} direction={isMobile ? 'column' : 'row'} justifyContent="space-between" alignItems={isMobile ? 'flex-start' : 'center'}>
+      <Stack spacing={1} direction="row" justifyContent="space-between" alignItems="center" flexWrap={isMobile ? 'wrap' : 'nowrap'}>
         {!isSessionCompleted && (
-          <Button variant='ghost' onClick={onAddSet} startIcon={<Plus size={16} />} disabled={isAddSetPending} fullWidth={isMobile}>
-            Add Additional Set
-          </Button>
+          <>
+            <Button
+              variant='ghost'
+              onClick={handleRemoveLastSet}
+              startIcon={<Trash2 size={16} />}
+              disabled={!canRemoveLastSet}
+              sx={(theme) => ({
+                color: canRemoveLastSet ? theme.palette.error.main : theme.palette.text.disabled,
+                flex: isMobile ? 1 : undefined,
+              })}
+            >
+              Remove Last Set
+            </Button>
+            <Button
+              variant='secondary'
+              onClick={onAddSet}
+              startIcon={<Plus size={16} />}
+              disabled={isAddSetPending}
+              sx={{ flex: isMobile ? 1 : undefined }}
+            >
+              Add Set
+            </Button>
+          </>
         )}
       </Stack>
 

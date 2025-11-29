@@ -62,8 +62,12 @@ export const sessionsApi = {
     apiClient
       .post<WorkoutSessionDto>(`/sessions/${sessionId}/exercises/${sessionExerciseId}/sets`, payload)
       .then((res) => res.data),
-  removeSet: (sessionId: string, setId: string) =>
-    apiClient.delete<WorkoutSessionDto>(`/sessions/${sessionId}/sets/${setId}`).then((res) => res.data),
+  removeSet: (sessionId: string, setId: string, options?: { force?: boolean }) =>
+    apiClient
+      .delete<WorkoutSessionDto>(`/sessions/${sessionId}/sets/${setId}`, {
+        params: options?.force ? { force: true } : undefined,
+      })
+      .then((res) => res.data),
   remove: (sessionId: string) => apiClient.delete<void>(`/sessions/${sessionId}`),
   progression: (programId: string) =>
     apiClient.get<WorkoutSessionProgressPointDto[]>(`/programs/${programId}/sessions/progression`).then((res) => res.data),
