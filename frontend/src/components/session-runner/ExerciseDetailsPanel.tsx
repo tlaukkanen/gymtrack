@@ -90,20 +90,37 @@ export const ExerciseDetailsPanel = ({
   isExerciseCompleted,
   onCompleteWorkout,
 }: ExerciseDetailsPanelProps) => {
-  const [restSeconds, setRestSeconds] = useState<number>(exercise.restSeconds)
-  const [notes, setNotes] = useState<string>(exercise.notes ?? '')
   const [stickyOffset, setStickyOffset] = useState(0)
   const [isTimerPinned, setIsTimerPinned] = useState(false)
   const stickySentinelRef = useRef<HTMLDivElement | null>(null)
+  const restSecondsRef = useRef<number>(exercise.restSeconds)
+  const notesRef = useRef<string>(exercise.notes ?? '')
   const isMobile = useMediaQuery('(max-width:600px)')
   const exerciseCategory = useMemo(() => deriveExerciseCategory(exercise), [exercise])
   const isStickyTimer = !isSessionCompleted && isMobile
   const quickAddSeconds = useMemo(() => (restOptions.length ? restOptions : QUICK_ADD_SECONDS).slice(0, 3), [restOptions])
-  const showQuickAddChips = !(isStickyTimer && isTimerPinned)
-  const timerButtonSize = isTimerPinned ? 'medium' : isMobile ? 'large' : 'medium'
-  const timerButtonMin = isTimerPinned ? 48 : isMobile ? 64 : undefined
-  const timerStackSpacing = isTimerPinned ? 1 : isMobile ? 0.8 : 2
-  const timerControlSpacing = isTimerPinned ? 0.5 : 1
+  const isTimerPinnedActive = isStickyTimer && isTimerPinned
+  const showQuickAddChips = !isTimerPinnedActive
+  const timerButtonSize = isTimerPinnedActive ? 'medium' : isMobile ? 'large' : 'medium'
+  const timerButtonMin = isTimerPinnedActive ? 48 : isMobile ? 64 : undefined
+  const timerStackSpacing = isTimerPinnedActive ? 1 : isMobile ? 0.8 : 2
+  const timerControlSpacing = isTimerPinnedActive ? 0.5 : 1
+  const computedStickyOffset = isStickyTimer ? Math.max(stickyOffset, 16) : 0
+  const renderTimerDisplay = () => (
+    <Box
+      className="timer-display"
+      sx={{
+        textAlign: isMobile ? 'center' : 'left',
+        flex: isMobile ? '1 1 auto' : '0 0 auto',
+        lineHeight: isMobile ? 0.9 : 1.1,
+        fontSize: isStickyTimer ? 'clamp(1.75rem, 10vw, 3rem)' : undefined,
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      {formatTimer(timerRemainingMs)}
+    </Box>
+  )
 
   const handleIncrementTimer = useCallback(
     (incrementSeconds: number) => {
@@ -130,38 +147,37 @@ export const ExerciseDetailsPanel = ({
   const activeSetId = !isSessionCompleted && firstIncompleteSet ? firstIncompleteSet.id : null
 
   useEffect(() => {
-    setRestSeconds(exercise.restSeconds)
-    setNotes(exercise.notes ?? '')
+    restSecondsRef.current = exercise.restSeconds
+    notesRef.current = exercise.notes ?? ''
   }, [exercise.id, exercise.notes, exercise.restSeconds])
 
   useEffect(() => {
-    if (!isStickyTimer || typeof window === 'undefined') {
-      setStickyOffset(0)
+    if (!isStickyTimer || typeof window === 'undefined' || typeof ResizeObserver === 'undefined') {
       return undefined
     }
     const shell = document.querySelector<HTMLElement>('.mobile-exercise-shell')
     if (!shell) {
-      setStickyOffset(0)
       return undefined
     }
     const updateOffset = () => {
       const rect = shell.getBoundingClientRect()
       setStickyOffset(rect.height + 12)
     }
-    updateOffset()
     const observer = new ResizeObserver(updateOffset)
     observer.observe(shell)
-    return () => observer.disconnect()
+    const rafId = window.requestAnimationFrame(updateOffset)
+    return () => {
+      observer.disconnect()
+      window.cancelAnimationFrame(rafId)
+    }
   }, [isStickyTimer])
 
   useEffect(() => {
-    if (!isStickyTimer) {
-      setIsTimerPinned(false)
+    if (!isStickyTimer || typeof IntersectionObserver === 'undefined') {
       return undefined
     }
     const sentinel = stickySentinelRef.current
-    if (!sentinel || typeof IntersectionObserver === 'undefined') {
-      setIsTimerPinned(false)
+    if (!sentinel) {
       return undefined
     }
     const observer = new IntersectionObserver(
@@ -175,7 +191,7 @@ export const ExerciseDetailsPanel = ({
   }, [isStickyTimer])
 
   const handleSaveDetails = () => {
-    onSaveDetails({ restSeconds, notes })
+    onSaveDetails({ restSeconds: restSecondsRef.current, notes: notesRef.current })
   }
 
   const shouldShowExerciseCta = !isSessionCompleted && isExerciseCompleted
@@ -211,24 +227,28 @@ export const ExerciseDetailsPanel = ({
           }}
         >
           <TextField
+            key={`rest-${exercise.id}-${exercise.restSeconds}`}
             label="Rest seconds between sets"
             type="number"
-            value={restSeconds}
+            defaultValue={exercise.restSeconds}
             onChange={(event) => {
               const nextValue = Number(event.target.value)
-              setRestSeconds(Number.isFinite(nextValue) ? nextValue : 0)
+              restSecondsRef.current = Number.isFinite(nextValue) ? nextValue : 0
             }}
             inputProps={{ min: 0, max: 600 }}
             fullWidth
             disabled={isSessionCompleted}
           />
           <TextField
+            key={`notes-${exercise.id}-${exercise.notes ?? ''}`}
             label="My Notes"
             multiline
             minRows={2}
             fullWidth
-            value={notes}
-            onChange={(event) => setNotes(event.target.value)}
+            defaultValue={exercise.notes ?? ''}
+            onChange={(event) => {
+              notesRef.current = event.target.value
+            }}
             disabled={isSessionCompleted}
           />
           <Button onClick={handleSaveDetails} disabled={isSessionCompleted || isUpdateExercisePending} fullWidth={isMobile}>
@@ -245,7 +265,7 @@ export const ExerciseDetailsPanel = ({
           <Box
             sx={(theme) => ({
               position: isStickyTimer ? 'sticky' : 'static',
-              top: isStickyTimer ? `${Math.max(stickyOffset, 16)}px` : 'auto',
+              top: isStickyTimer ? `${computedStickyOffset}px` : 'auto',
               zIndex: isStickyTimer ? theme.zIndex.appBar : 'auto',
               backgroundColor: isStickyTimer ? theme.palette.background.paper : 'transparent',
               borderRadius: isStickyTimer ? 1 : 0,
@@ -261,83 +281,117 @@ export const ExerciseDetailsPanel = ({
                   Rest Timer
                 </Typography>
               </Box>
-            </Stack>
-            <Stack spacing={timerStackSpacing}>
-              <Stack
-                direction={isMobile ? 'column' : 'row'}
-                spacing={timerStackSpacing}
-                alignItems={isMobile ? 'stretch' : 'center'}
-                justifyContent="space-between"
-                flexWrap={isMobile ? 'nowrap' : 'wrap'}
-              >
-                <Box
-                  className="timer-display"
-                  sx={{
-                    textAlign: isMobile ? 'center' : 'left',
-                    flex: isMobile ? '1 1 auto' : '0 0 auto',
-                    lineHeight: isMobile ? 0.6 : 1.1,
-                    fontSize: isStickyTimer ? 'clamp(1.75rem, 10vw, 3rem)' : undefined,
-                  }}
-                >
-                  {formatTimer(timerRemainingMs)}
-                </Box>
+              {isMobile && showQuickAddChips && (
                 <Stack
                   direction="row"
-                  spacing={timerControlSpacing}
-                  alignItems="center"
-                  justifyContent={isMobile ? 'space-between' : 'flex-start'}
-                  width={isMobile ? '100%' : 'auto'}
+                  spacing={0.5}
                   flexWrap="wrap"
+                  alignItems="center"
+                  justifyContent="flex-end"
+                  sx={{ columnGap: 0.5, rowGap: 0.5, marginLeft: 'auto' }}
                 >
+                  {quickAddSeconds.map((value) => (
+                    <Chip
+                      key={`mobile-${value}`}
+                      label={`+${value}s`}
+                      clickable
+                      onClick={() => handleIncrementTimer(value)}
+                      disabled={isSessionCompleted}
+                      size="small"
+                    />
+                  ))}
+                </Stack>
+              )}
+            </Stack>
+            <Stack spacing={timerStackSpacing}>
+              {isMobile ? (
+                <Stack direction="row" spacing={timerStackSpacing} alignItems="center" justifyContent="space-between">
                   <IconButton
                     color="primary"
                     onClick={() => onStartTimer(exercise.restSeconds)}
                     disabled={isSessionCompleted}
                     size={timerButtonSize as 'small' | 'medium' | 'large'}
-                    sx={{ flex: isMobile ? 1 : undefined, minWidth: timerButtonMin, minHeight: timerButtonMin }}
+                    sx={{ minWidth: timerButtonMin, minHeight: timerButtonMin }}
                     aria-label="Start rest timer"
                   >
-                    <Play size={isMobile ? 20 : 18} />
+                    <Play size={20} />
                   </IconButton>
-                  <IconButton
-                    color="warning"
-                    onClick={onPauseTimer}
-                    disabled={isSessionCompleted}
-                    size={timerButtonSize as 'small' | 'medium' | 'large'}
-                    sx={{ flex: isMobile ? 1 : undefined, minWidth: timerButtonMin, minHeight: timerButtonMin }}
-                    aria-label="Pause rest timer"
-                  >
-                    <Pause size={isMobile ? 20 : 18} />
-                  </IconButton>
+                  {renderTimerDisplay()}
                   <IconButton
                     color="secondary"
                     onClick={onResetTimer}
                     disabled={isSessionCompleted}
                     size={timerButtonSize as 'small' | 'medium' | 'large'}
-                    sx={{ flex: isMobile ? 1 : undefined, minWidth: timerButtonMin, minHeight: timerButtonMin }}
+                    sx={{ minWidth: timerButtonMin, minHeight: timerButtonMin }}
                     aria-label="Reset rest timer"
                   >
-                    <RefreshCcw size={isMobile ? 20 : 18} />
+                    <RefreshCcw size={20} />
                   </IconButton>
                 </Stack>
-              </Stack>
+              ) : (
+                <Stack
+                  direction="row"
+                  spacing={timerStackSpacing}
+                  alignItems="center"
+                  justifyContent="space-between"
+                  flexWrap="wrap"
+                >
+                  {renderTimerDisplay()}
+                  <Stack
+                    direction="row"
+                    spacing={timerControlSpacing}
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    width="auto"
+                    flexWrap="wrap"
+                  >
+                    <IconButton
+                      color="primary"
+                      onClick={() => onStartTimer(exercise.restSeconds)}
+                      disabled={isSessionCompleted}
+                      size={timerButtonSize as 'small' | 'medium' | 'large'}
+                      aria-label="Start rest timer"
+                    >
+                      <Play size={18} />
+                    </IconButton>
+                    <IconButton
+                      color="warning"
+                      onClick={onPauseTimer}
+                      disabled={isSessionCompleted}
+                      size={timerButtonSize as 'small' | 'medium' | 'large'}
+                      aria-label="Pause rest timer"
+                    >
+                      <Pause size={18} />
+                    </IconButton>
+                    <IconButton
+                      color="secondary"
+                      onClick={onResetTimer}
+                      disabled={isSessionCompleted}
+                      size={timerButtonSize as 'small' | 'medium' | 'large'}
+                      aria-label="Reset rest timer"
+                    >
+                      <RefreshCcw size={18} />
+                    </IconButton>
+                  </Stack>
+                </Stack>
+              )}
             </Stack>
-            {showQuickAddChips && (
+            {!isMobile && showQuickAddChips && (
               <Stack
                 direction="row"
                 flexWrap="wrap"
                 marginTop={1}
-                justifyContent={isMobile ? 'center' : 'flex-start'}
-                sx={{ columnGap: isMobile ? 0.75 : 1, rowGap: isMobile ? 0.75 : 0.5 }}
+                justifyContent="flex-start"
+                sx={{ columnGap: 1, rowGap: 0.5 }}
               >
                 {quickAddSeconds.map((value) => (
                   <Chip
-                    key={value}
+                    key={`desktop-${value}`}
                     label={`+${value}s`}
                     clickable
                     onClick={() => handleIncrementTimer(value)}
                     disabled={isSessionCompleted}
-                    size={isMobile ? 'small' : 'medium'}
+                    size="medium"
                   />
                 ))}
               </Stack>
