@@ -93,8 +93,6 @@ export const ExerciseDetailsPanel = ({
   const [stickyOffset, setStickyOffset] = useState(0)
   const [isTimerPinned, setIsTimerPinned] = useState(false)
   const stickySentinelRef = useRef<HTMLDivElement | null>(null)
-  const restSecondsRef = useRef<number>(exercise.restSeconds)
-  const notesRef = useRef<string>(exercise.notes ?? '')
   const isMobile = useMediaQuery('(max-width:600px)')
   const exerciseCategory = useMemo(() => deriveExerciseCategory(exercise), [exercise])
   const isStickyTimer = !isSessionCompleted && isMobile
@@ -147,11 +145,6 @@ export const ExerciseDetailsPanel = ({
   const activeSetId = !isSessionCompleted && firstIncompleteSet ? firstIncompleteSet.id : null
 
   useEffect(() => {
-    restSecondsRef.current = exercise.restSeconds
-    notesRef.current = exercise.notes ?? ''
-  }, [exercise.id, exercise.notes, exercise.restSeconds])
-
-  useEffect(() => {
     if (!isStickyTimer || typeof window === 'undefined' || typeof ResizeObserver === 'undefined') {
       return undefined
     }
@@ -190,10 +183,6 @@ export const ExerciseDetailsPanel = ({
     return () => observer.disconnect()
   }, [isStickyTimer])
 
-  const handleSaveDetails = () => {
-    onSaveDetails({ restSeconds: restSecondsRef.current, notes: notesRef.current })
-  }
-
   const shouldShowExerciseCta = !isSessionCompleted && isExerciseCompleted
   const isLastExercise = shouldShowExerciseCta && !hasNextExercise
   const lastSet = exercise.sets.length > 0 ? exercise.sets[exercise.sets.length - 1] : undefined
@@ -218,43 +207,15 @@ export const ExerciseDetailsPanel = ({
       </div>
 
       <Stack spacing={2}>
-        <div
-          className="field-row"
-          style={{
-            flexDirection: isMobile ? 'column' : 'row',
-            alignItems: isMobile ? 'stretch' : 'center',
-            gap: isMobile ? '0.75rem' : '1rem',
-          }}
-        >
-          <TextField
-            key={`rest-${exercise.id}-${exercise.restSeconds}`}
-            label="Rest seconds between sets"
-            type="number"
-            defaultValue={exercise.restSeconds}
-            onChange={(event) => {
-              const nextValue = Number(event.target.value)
-              restSecondsRef.current = Number.isFinite(nextValue) ? nextValue : 0
-            }}
-            inputProps={{ min: 0, max: 600 }}
-            fullWidth
-            disabled={isSessionCompleted}
-          />
-          <TextField
-            key={`notes-${exercise.id}-${exercise.notes ?? ''}`}
-            label="My Notes"
-            multiline
-            minRows={2}
-            fullWidth
-            defaultValue={exercise.notes ?? ''}
-            onChange={(event) => {
-              notesRef.current = event.target.value
-            }}
-            disabled={isSessionCompleted}
-          />
-          <Button onClick={handleSaveDetails} disabled={isSessionCompleted || isUpdateExercisePending} fullWidth={isMobile}>
-            {isUpdateExercisePending ? 'Saving…' : 'Save'}
-          </Button>
-        </div>
+        <ExerciseDetailsEditor
+          key={`${exercise.id}-${exercise.restSeconds}-${exercise.notes ?? ''}`}
+          initialRestSeconds={exercise.restSeconds}
+          initialNotes={exercise.notes ?? ''}
+          isSessionCompleted={isSessionCompleted}
+          isMobile={isMobile}
+          isUpdateExercisePending={isUpdateExercisePending}
+          onSaveDetails={onSaveDetails}
+        />
       </Stack>
 
       {!isSessionCompleted && (
@@ -465,5 +426,72 @@ export const ExerciseDetailsPanel = ({
         </Button>
       )}
     </Stack>
+  )
+}
+
+interface ExerciseDetailsEditorProps {
+  initialRestSeconds: number
+  initialNotes: string
+  isSessionCompleted: boolean
+  isMobile: boolean
+  isUpdateExercisePending: boolean
+  onSaveDetails: (payload: { restSeconds: number; notes: string }) => void
+}
+
+const ExerciseDetailsEditor = ({
+  initialRestSeconds,
+  initialNotes,
+  isSessionCompleted,
+  isMobile,
+  isUpdateExercisePending,
+  onSaveDetails,
+}: ExerciseDetailsEditorProps) => {
+  const [restSeconds, setRestSeconds] = useState(initialRestSeconds)
+  const [notes, setNotes] = useState(initialNotes)
+
+  const hasDetailChanges = restSeconds !== initialRestSeconds || notes !== initialNotes
+
+  const handleSaveDetails = () => {
+    onSaveDetails({ restSeconds, notes })
+  }
+
+  return (
+    <div
+      className="field-row"
+      style={{
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'stretch' : 'center',
+        gap: isMobile ? '0.75rem' : '1rem',
+      }}
+    >
+      <TextField
+        label="Rest seconds between sets"
+        type="number"
+        value={restSeconds}
+        onChange={(event) => {
+          const nextValue = Number(event.target.value)
+          setRestSeconds(Number.isFinite(nextValue) ? nextValue : 0)
+        }}
+        inputProps={{ min: 0, max: 600 }}
+        fullWidth
+        disabled={isSessionCompleted}
+      />
+      <TextField
+        label="My Notes"
+        multiline
+        minRows={2}
+        fullWidth
+        value={notes}
+        onChange={(event) => {
+          setNotes(event.target.value)
+        }}
+        disabled={isSessionCompleted}
+      />
+      {hasDetailChanges && !isSessionCompleted && (
+        <Button onClick={handleSaveDetails} disabled={isUpdateExercisePending} fullWidth={isMobile}>
+          {isUpdateExercisePending ? 'Saving…' : 'Save'}
+        </Button>
+      )}
+    </div>
   )
 }
