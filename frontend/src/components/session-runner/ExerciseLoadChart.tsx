@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 import type { WorkoutSessionExerciseProgressPointDto } from '../../types/api'
 import { Card } from '../ui/Card'
+import { Typography } from '@mui/material'
 
 const weightFormatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 })
 
@@ -38,10 +39,17 @@ const ExerciseLoadChart = ({ points, currentSessionExerciseId, isLoading = false
   }
 
   return (
-    <Card>
+    <Card
+      sx={{
+        borderRadius: 1,
+        border: (theme) => `1px solid ${theme.palette.divider}`,
+        boxShadow: (theme) => theme.shadows[1],
+        p: (theme) => theme.spacing(1.5),
+      }}
+    >
       <div className="section-header" style={{ marginBottom: '1rem' }}>
         <div>
-          <h3>Exercise load trend</h3>
+          <Typography variant="h6">Exercise load trend</Typography>
           <p style={{ color: 'var(--text-muted)', margin: 0 }}>Completed sets total for this movement across sessions.</p>
         </div>
       </div>

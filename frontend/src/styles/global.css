@@ -460,7 +460,6 @@ textarea {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  background: #ffffff;
 }
 
 .exercise-list-item__body {
@@ -494,11 +493,9 @@ textarea {
 @media (max-width: 700px) {
   .mobile-exercise-shell {
     position: sticky;
-    top: 0;
+    top: 0.75rem;
     z-index: 20;
     padding: 0 0 0.75rem;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
   }
 
   .mobile-exercise-carousel {

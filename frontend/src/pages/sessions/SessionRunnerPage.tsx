@@ -363,7 +363,7 @@ const SessionRunnerPage = () => {
     )
   }
 
-  const startedAt = new Date(session.startedAt).toLocaleString()
+  const startedAt = new Date(session.startedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
 
   return (
     <div

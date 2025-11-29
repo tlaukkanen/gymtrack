@@ -219,7 +219,7 @@ export const ExerciseDetailsPanel = ({
               setRestSeconds(Number.isFinite(nextValue) ? nextValue : 0)
             }}
             inputProps={{ min: 0, max: 600 }}
-            fullWidth={isMobile}
+            fullWidth
             disabled={isSessionCompleted}
           />
           <TextField
@@ -247,7 +247,7 @@ export const ExerciseDetailsPanel = ({
               position: isStickyTimer ? 'sticky' : 'static',
               top: isStickyTimer ? `${Math.max(stickyOffset, 16)}px` : 'auto',
               zIndex: isStickyTimer ? theme.zIndex.appBar : 'auto',
-              backgroundColor: theme.palette.background.paper,
+              backgroundColor: isStickyTimer ? theme.palette.background.paper : 'transparent',
               borderRadius: isStickyTimer ? 1 : 0,
               padding: isStickyTimer ? theme.spacing(1.25) : 0,
               border: isStickyTimer ? `1px solid ${theme.palette.divider}` : 'none',
