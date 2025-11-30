@@ -23,6 +23,7 @@ import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { sessionsApi } from '../../api/requests'
+import { formatDateTime } from '../../utils/time'
 import type { PagedResult, SessionListStatus, WorkoutSessionSummaryDto } from '../../types/api'
 
 const SESSION_STATUS_OPTIONS: Array<{ value: SessionListStatus; label: string }> = [
@@ -36,11 +37,6 @@ const PAGE_SIZE = 10
 const parsePageNumber = (value: string | null) => {
   const numeric = Number(value)
   return Number.isFinite(numeric) && numeric > 0 ? numeric : 1
-}
-
-const formatDateTime = (value?: string | null) => {
-  if (!value) return '—'
-  return new Date(value).toLocaleString()
 }
 
 const formatDuration = (value?: string | null) => {

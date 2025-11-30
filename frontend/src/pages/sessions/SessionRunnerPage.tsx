@@ -20,7 +20,7 @@ import type {
   WorkoutSessionExerciseDto,
   WorkoutSessionSetDto,
 } from '../../types/api'
-import { restOptions } from '../../utils/time'
+import { formatDateTime, restOptions } from '../../utils/time'
 
 const clampRestSeconds = (value: number) => {
   if (!Number.isFinite(value) || value < 0) return 0
@@ -363,7 +363,7 @@ const SessionRunnerPage = () => {
     )
   }
 
-  const startedAt = new Date(session.startedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+  const startedAt = formatDateTime(session.startedAt)
 
   return (
     <div
@@ -421,7 +421,7 @@ const SessionRunnerPage = () => {
 
       {session.completedAt && (
         <Alert severity="info">
-          Session was completed on {new Date(session.completedAt).toLocaleString()}. Editing is disabled.
+          Session was completed on {formatDateTime(session.completedAt)}. Editing is disabled.
         </Alert>
       )}
 
