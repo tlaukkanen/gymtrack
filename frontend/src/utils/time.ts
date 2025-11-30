@@ -16,3 +16,8 @@ export const formatDate = (value: string) => {
     day: 'numeric',
   })
 }
+
+export const formatDateTime = (value?: string | null) => {
+  if (!value) return '—'
+  return new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+}
