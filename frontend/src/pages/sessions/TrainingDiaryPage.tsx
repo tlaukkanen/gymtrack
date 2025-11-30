@@ -198,29 +198,44 @@ const TrainingDiaryPage = () => {
               justifyContent="space-between"
               alignItems="center"
               onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setIsFilterExpanded(!isFilterExpanded)
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-expanded={isFilterExpanded}
+              aria-controls="filter-section"
               sx={{ cursor: 'pointer' }}
             >
               <Stack direction="row" spacing={1} alignItems="center">
-                <Filter size={18} />
-                <Typography variant="subtitle2">
+                <Filter size={18} aria-hidden="true" />
+                <Typography variant="subtitle2" component="span">
                   {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
                   {hasActiveFilters && !isFilterExpanded && (
                     <Chip
                       label="Active"
                       size="small"
                       color="primary"
+                      aria-label="Filters are active"
                       sx={{ ml: 1 }}
                     />
                   )}
                 </Typography>
               </Stack>
-              <IconButton size="small" aria-label={isFilterExpanded ? 'Collapse filters' : 'Expand filters'}>
+              <IconButton
+                size="small"
+                aria-label={isFilterExpanded ? 'Collapse filters' : 'Expand filters'}
+                tabIndex={-1}
+              >
                 {isFilterExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </IconButton>
             </Stack>
           )}
 
-          <Collapse in={!isMobile || isFilterExpanded}>
+          <Collapse in={!isMobile || isFilterExpanded} id="filter-section">
             <Stack spacing={2}>
               <ToggleButtonGroup
                 exclusive
