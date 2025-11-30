@@ -421,7 +421,7 @@ const SessionRunnerPage = () => {
 
       {session.completedAt && (
         <Alert severity="info">
-          Session was completed on {new Date(session.completedAt).toLocaleString()}. Editing is disabled.
+          Session was completed on {new Date(session.completedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}. Editing is disabled.
         </Alert>
       )}
 

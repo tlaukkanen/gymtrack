@@ -40,7 +40,7 @@ const parsePageNumber = (value: string | null) => {
 
 const formatDateTime = (value?: string | null) => {
   if (!value) return '—'
-  return new Date(value).toLocaleString()
+  return new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
 }
 
 const formatDuration = (value?: string | null) => {
