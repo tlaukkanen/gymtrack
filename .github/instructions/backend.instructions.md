@@ -1,4 +1,6 @@
 ---
+name: Backend Code Style Guidelines
+description: Guidelines for maintaining consistent code style in the backend codebase.
 applyTo: "backend/**/*.cs"
 ---
 # Backend Instructions

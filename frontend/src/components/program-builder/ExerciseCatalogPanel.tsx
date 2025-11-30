@@ -140,11 +140,11 @@ const ExerciseCatalogPanel = ({
         )}
       </div>
     </div>
-    <div className="mt-4 flex max-h-[65vh] flex-col gap-3 overflow-y-auto">
+    <div className="mt-4 max-h-[65vh] space-y-3 overflow-y-auto pr-1">
       {exercises.map((exercise) => (
         <div
           key={exercise.id}
-          className="card card-muted border border-transparent p-4 transition-colors hover:border-sky-400/40"
+          className="rounded-2xl border border-slate-300 bg-slate-100 p-4 shadow-[0_2px_1px_rgba(2,6,23,0.25)] transition-colors hover:border-sky-400/50"
         >
           <div className="section-header">
             <div>

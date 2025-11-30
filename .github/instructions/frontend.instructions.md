@@ -1,4 +1,6 @@
 ---
+name: Frontend Code Style Guidelines
+description: Guidelines for maintaining consistent code style in the frontend codebase.
 applyTo: "**/*.ts,**/*.tsx,**/*.css"
 ---
 # Frontend Instructions
