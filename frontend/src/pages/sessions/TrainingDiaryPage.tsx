@@ -6,6 +6,8 @@ import {
   Box,
   Chip,
   CircularProgress,
+  Collapse,
+  IconButton,
   LinearProgress,
   Pagination,
   Stack,
@@ -13,7 +15,10 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
+import { ChevronDown, ChevronUp, Filter } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { sessionsApi } from '../../api/requests'
@@ -61,6 +66,9 @@ const getStatusLabel = (session: WorkoutSessionSummaryDto) => {
 const TrainingDiaryPage = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false)
 
   const filters = useMemo(() => {
     const statusParam = (searchParams.get('status') as SessionListStatus) ?? 'All'
@@ -184,50 +192,97 @@ const TrainingDiaryPage = () => {
 
       <Card muted>
         <Stack spacing={2}>
-          <ToggleButtonGroup
-            exclusive
-            value={filters.status}
-            onChange={handleStatusChange}
-            size="small"
-            color="primary"
-          >
-            {SESSION_STATUS_OPTIONS.map((option) => (
-              <ToggleButton key={option.value} value={option.value}>
-                {option.label}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
+          {isMobile && (
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setIsFilterExpanded(!isFilterExpanded)
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-expanded={isFilterExpanded}
+              aria-controls="filter-section"
+              sx={{ cursor: 'pointer' }}
+            >
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Filter size={18} aria-hidden="true" />
+                <Typography variant="subtitle2" component="span">
+                  {isFilterExpanded ? 'Hide Filters' : 'Show Filters'}
+                  {hasActiveFilters && !isFilterExpanded && (
+                    <Chip
+                      label="Active"
+                      size="small"
+                      color="primary"
+                      aria-label="Filters are active"
+                      sx={{ ml: 1 }}
+                    />
+                  )}
+                </Typography>
+              </Stack>
+              <IconButton
+                size="small"
+                aria-label={isFilterExpanded ? 'Collapse filters' : 'Expand filters'}
+                tabIndex={-1}
+              >
+                {isFilterExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </IconButton>
+            </Stack>
+          )}
 
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'flex-end' }}>
-            <form onSubmit={handleSearchSubmit} style={{ flex: 1 }}>
-              <TextField
-                label="Search program or notes"
-                fullWidth
-                value={searchValue}
-                onChange={(event) => setSearchValue(event.target.value)}
-                onBlur={() => applySearch(searchValue)}
-              />
-            </form>
-            <TextField
-              label="Started from"
-              type="date"
-              value={filters.startedFrom}
-              onChange={(event) => handleDateChange('startedFrom', event.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              label="Started to"
-              type="date"
-              value={filters.startedTo}
-              onChange={(event) => handleDateChange('startedTo', event.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            {hasActiveFilters && (
-              <Button variant="ghost" onClick={clearFilters} sx={{ height: 56 }}>
-                Clear filters
-              </Button>
-            )}
-          </Stack>
+          <Collapse in={!isMobile || isFilterExpanded} id="filter-section">
+            <Stack spacing={2}>
+              <ToggleButtonGroup
+                exclusive
+                value={filters.status}
+                onChange={handleStatusChange}
+                size="small"
+                color="primary"
+              >
+                {SESSION_STATUS_OPTIONS.map((option) => (
+                  <ToggleButton key={option.value} value={option.value}>
+                    {option.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ xs: 'stretch', md: 'flex-end' }}>
+                <form onSubmit={handleSearchSubmit} style={{ flex: 1 }}>
+                  <TextField
+                    label="Search program or notes"
+                    fullWidth
+                    value={searchValue}
+                    onChange={(event) => setSearchValue(event.target.value)}
+                    onBlur={() => applySearch(searchValue)}
+                  />
+                </form>
+                <TextField
+                  label="Started from"
+                  type="date"
+                  value={filters.startedFrom}
+                  onChange={(event) => handleDateChange('startedFrom', event.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  label="Started to"
+                  type="date"
+                  value={filters.startedTo}
+                  onChange={(event) => handleDateChange('startedTo', event.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {hasActiveFilters && (
+                  <Button variant="ghost" onClick={clearFilters} sx={{ height: 56 }}>
+                    Clear filters
+                  </Button>
+                )}
+              </Stack>
+            </Stack>
+          </Collapse>
         </Stack>
       </Card>
 
