@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import clsx from 'clsx'
 import {
   Alert,
   Box,
@@ -178,20 +179,25 @@ const TrainingDiaryPage = () => {
   const totalCount = listQuery.data?.totalCount ?? 0
   const pageCount = Math.max(1, Math.ceil(totalCount / filters.pageSize))
 
+  const filterCardPadding = isMobile && !isFilterExpanded ? 2 : 3
+  const filterStackSpacing = isMobile && !isFilterExpanded ? 1.5 : 2
+
   return (
     <Stack spacing={3}>
       <div className="section-header">
         <div>
-          <h2>Training Diary</h2>
+          <Typography variant="h2">Training Diary</Typography>
           <p style={{ color: 'var(--text-muted)', marginBottom: 0 }}>Review recent workouts, resume active sessions, and spot gaps.</p>
         </div>
-        <Button onClick={() => navigate('/app/dashboard')}>
+        <Button onClick={() => navigate('/app/dashboard')}
+          fullWidth={isMobile}
+          >
           Start New Session
         </Button>
       </div>
 
-      <Card muted>
-        <Stack spacing={2}>
+      <Card muted sx={{ p: filterCardPadding }}>
+        <Stack spacing={filterStackSpacing}>
           {isMobile && (
             <Stack
               direction="row"
@@ -208,7 +214,10 @@ const TrainingDiaryPage = () => {
               role="button"
               aria-expanded={isFilterExpanded}
               aria-controls="filter-section"
-              sx={{ cursor: 'pointer' }}
+              className={clsx(
+                'cursor-pointer rounded-lg border px-4 py-2.5 transition-colors duration-150',
+                isFilterExpanded ? 'border-slate-300 bg-slate-100' : 'border-slate-200 bg-transparent'
+              )}
             >
               <Stack direction="row" spacing={1} alignItems="center">
                 <Filter size={18} aria-hidden="true" />
@@ -220,7 +229,7 @@ const TrainingDiaryPage = () => {
                       size="small"
                       color="primary"
                       aria-label="Filters are active"
-                      sx={{ ml: 1 }}
+                      className="ml-2"
                     />
                   )}
                 </Typography>
@@ -235,7 +244,7 @@ const TrainingDiaryPage = () => {
             </Stack>
           )}
 
-          <Collapse in={!isMobile || isFilterExpanded} id="filter-section">
+          <Collapse in={!isMobile || isFilterExpanded} id="filter-section" unmountOnExit>
             <Stack spacing={2}>
               <ToggleButtonGroup
                 exclusive

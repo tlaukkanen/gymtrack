@@ -59,19 +59,6 @@ const DashboardPage = () => {
         <Button onClick={() => navigate('/app/programs/new')}>New Program</Button>
       </div>
 
-      <div className="grid grid-2">
-        <Card>
-          <h3>Programs</h3>
-          <p style={{ fontSize: '2rem', margin: '0.25rem 0' }}>{programs?.length ?? 0}</p>
-          <p style={{ color: 'var(--text-muted)' }}>Templates ready to train.</p>
-        </Card>
-        <Card>
-          <h3>Exercise catalog</h3>
-          <p style={{ fontSize: '2rem', margin: '0.25rem 0' }}>{exercises?.length ?? 0}</p>
-          <p style={{ color: 'var(--text-muted)' }}>Movements available.</p>
-        </Card>
-      </div>
-
       <section>
         <div className="section-header">
           <h3>Your workout programs</h3>
