@@ -219,6 +219,7 @@ export const SetLogRow = ({
               size="small"
               value={durationValue}
               onChange={(event) => updateDraftValue('duration', event.target.value)}
+              onFocus={(event) => event.target.select()}
               inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', 'aria-label': 'Actual duration in seconds' }}
               placeholder={plannedDurationPlaceholder}
               disabled={disabled}
@@ -233,6 +234,7 @@ export const SetLogRow = ({
                 size="small"
                 value={weightValue}
                 onChange={(event) => updateDraftValue('weight', event.target.value)}
+                onFocus={(event) => event.target.select()}
                 inputProps={{ inputMode: 'decimal', pattern: '[0-9]*', 'aria-label': 'Actual weight' }}
                 placeholder={plannedWeightPlaceholder}
                 disabled={disabled}
@@ -245,6 +247,7 @@ export const SetLogRow = ({
                 size="small"
                 value={repsValue}
                 onChange={(event) => updateDraftValue('reps', event.target.value)}
+                onFocus={(event) => event.target.select()}
                 inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', 'aria-label': 'Actual repetitions' }}
                 placeholder={plannedRepsPlaceholder}
                 disabled={disabled}

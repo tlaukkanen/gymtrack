@@ -7,6 +7,7 @@ import { registerSW } from 'virtual:pwa-register'
 import App from './App'
 import './styles/global.css'
 import { ToastProvider } from './components/feedback/ToastProvider'
+import { ProgressProvider } from './components/feedback/ProgressIndicator'
 import { theme } from './theme'
 
 const queryClient = new QueryClient({
@@ -33,9 +34,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <ToastProvider>
-            <App />
-          </ToastProvider>
+          <ProgressProvider>
+            <ToastProvider>
+              <App />
+            </ToastProvider>
+          </ProgressProvider>
         </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
