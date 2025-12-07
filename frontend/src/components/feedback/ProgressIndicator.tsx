@@ -47,6 +47,7 @@ const ProgressIndicator = () => {
         justifyContent: 'center',
         alignItems: 'center',
         padding: '12px',
+        // Using rgba of --accent (#0ea5e9 = rgb(14, 165, 233)) with alpha for transparency
         backgroundColor: 'rgba(14, 165, 233, 0.15)',
         backdropFilter: 'blur(8px)',
         borderBottom: '2px solid rgba(14, 165, 233, 0.4)',

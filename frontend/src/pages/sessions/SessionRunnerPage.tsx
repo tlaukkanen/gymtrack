@@ -222,9 +222,10 @@ const SessionRunnerPage = () => {
   const invalidateSession = () => queryClient.invalidateQueries({ queryKey: ['sessions', sessionId] })
 
   const updateSetMutation = useMutation({
-    mutationFn: (payload: { setId: string; body: { actualWeight?: number | null; actualReps?: number | null; actualDurationSeconds?: number | null } }) => {
+    mutationFn: (payload: { setId: string; body: { actualWeight?: number | null; actualReps?: number | null; actualDurationSeconds?: number | null } }) =>
+      sessionsApi.updateSet(sessionId!, payload.setId, payload.body),
+    onMutate: () => {
       showProgress()
-      return sessionsApi.updateSet(sessionId!, payload.setId, payload.body)
     },
     onSuccess: () => {
       hideProgress()
