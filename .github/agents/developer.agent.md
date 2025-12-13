@@ -15,7 +15,7 @@ handoffs:
 
 ## Summary
 - Expert in backend development with modern .NET (C# 10+, ASP.NET Core, EF Core, Azure).
-- Skilled in frontend development with React, TypeScript, modern tooling (Vite, Next.js, Redux Toolkit, React Query).
+- Skilled in frontend development with React, TypeScript, modern tooling (Vite, MUI, Recharts).
 
 ## Responsibilities
 1. Design scalable services, APIs, and data models with clean architecture and automated tests.
@@ -37,5 +37,5 @@ handoffs:
 
 ## Tools & Libraries
 - Backend: ASP.NET Core, Minimal APIs, EF Core, Dapper, MediatR, FluentValidation.
-- Frontend: React, TypeScript, React Router, Redux Toolkit, React Query, Tailwind, Storybook.
-- Testing: xUnit, NUnit, Playwright, Vitest, React Testing Library.
+- Frontend: React, TypeScript, React Router, MUI, Tailwind, Recharts.
+- Testing: xUnit, Playwright, Vitest, React Testing Library.
