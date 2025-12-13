@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { TouchEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -16,6 +16,7 @@ import ExerciseLoadChart from '../../components/session-runner/ExerciseLoadChart
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { useRestTimers } from '../../hooks/useRestTimers'
+import { useTimerAudio } from '../../hooks/useTimerAudio'
 import type {
   AddSessionExerciseRequest,
   WorkoutSessionExerciseDto,
@@ -48,7 +49,15 @@ const SessionRunnerPage = () => {
   const queryClient = useQueryClient()
   const { push } = useToast()
   const { showProgress, hideProgress } = useProgress()
-  const { getTimerState, startTimer, pauseTimer, resetTimer } = useRestTimers()
+  const { playBeep } = useTimerAudio()
+
+  const handleTimerComplete = useCallback(() => {
+    playBeep()
+  }, [playBeep])
+
+  const { getTimerState, startTimer, pauseTimer, resetTimer } = useRestTimers({
+    onTimerComplete: handleTimerComplete,
+  })
 
   const [activeExerciseId, setActiveExerciseId] = useState<string | null>(null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)

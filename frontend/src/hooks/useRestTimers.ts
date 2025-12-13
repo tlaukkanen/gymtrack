@@ -13,15 +13,27 @@ export interface RestTimerState {
   isRunning: boolean
 }
 
-export const useRestTimers = () => {
+interface UseRestTimersOptions {
+  onTimerComplete?: (exerciseId: string) => void
+}
+
+export const useRestTimers = (options?: UseRestTimersOptions) => {
   const [timers, setTimers] = useState<Record<string, InternalTimerState>>({})
   const intervalRef = useRef<number | null>(null)
+  const onTimerCompleteRef = useRef(options?.onTimerComplete)
+
+  // Keep callback ref up to date
+  useEffect(() => {
+    onTimerCompleteRef.current = options?.onTimerComplete
+  }, [options?.onTimerComplete])
 
   useEffect(() => {
     intervalRef.current = window.setInterval(() => {
       setTimers((prev) => {
         let mutated = false
         const next: Record<string, InternalTimerState> = {}
+        const completedTimers: string[] = []
+
         Object.entries(prev).forEach(([key, state]) => {
           if (!state.isRunning || !state.expiresAt) {
             next[key] = state
@@ -32,6 +44,7 @@ export const useRestTimers = () => {
           if (remainingMs === 0 && state.isRunning) {
             mutated = true
             next[key] = { duration: state.duration, remainingMs: 0, isRunning: false }
+            completedTimers.push(key)
             return
           }
 
@@ -42,6 +55,15 @@ export const useRestTimers = () => {
             next[key] = state
           }
         })
+
+        // Schedule callback invocations outside of state update
+        if (completedTimers.length > 0) {
+          setTimeout(() => {
+            completedTimers.forEach((id) => {
+              onTimerCompleteRef.current?.(id)
+            })
+          }, 0)
+        }
 
         return mutated ? next : prev
       })

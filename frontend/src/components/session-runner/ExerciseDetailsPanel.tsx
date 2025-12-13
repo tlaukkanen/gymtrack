@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box, Chip, Divider, IconButton, Stack, TextField, Typography, useMediaQuery } from '@mui/material'
-import { ArrowRight, CheckCircle, Pause, Play, Plus, RefreshCcw, Trash2 } from 'lucide-react'
+import { ArrowRight, CheckCircle, Pause, Play, Plus, RefreshCcw, Trash2, Volume2, VolumeX } from 'lucide-react'
 
 import type { WorkoutSessionExerciseDto, WorkoutSessionSetDto } from '../../types/api'
 import { Button } from '../ui/Button'
 import { SetLogRow } from './SetLogRow'
+import { useSettingsStore, selectTimerAudioMuted, selectToggleTimerAudioMuted } from '../../store/settings-store'
 
 type SessionExerciseCategory = 'Strength' | 'Cardio'
 
@@ -104,6 +105,11 @@ export const ExerciseDetailsPanel = ({
   const timerStackSpacing = isTimerPinnedActive ? 1 : isMobile ? 0.8 : 2
   const timerControlSpacing = isTimerPinnedActive ? 0.5 : 1
   const computedStickyOffset = isStickyTimer ? Math.max(stickyOffset, 16) : 0
+
+  // Audio mute state
+  const isAudioMuted = useSettingsStore(selectTimerAudioMuted)
+  const toggleAudioMute = useSettingsStore(selectToggleTimerAudioMuted)
+
   const renderTimerDisplay = () => (
     <Box
       className="timer-display"
@@ -237,11 +243,19 @@ export const ExerciseDetailsPanel = ({
             })}
           >
             <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-              <Box>
+              <Stack direction="row" alignItems="center" spacing={0.5}>
                 <Typography variant="subtitle2" noWrap>
                   Rest Timer
                 </Typography>
-              </Box>
+                <IconButton
+                  size="small"
+                  onClick={toggleAudioMute}
+                  aria-label={isAudioMuted ? 'Unmute timer audio' : 'Mute timer audio'}
+                  title={isAudioMuted ? 'Unmute timer audio' : 'Mute timer audio'}
+                >
+                  {isAudioMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                </IconButton>
+              </Stack>
               {isMobile && showQuickAddChips && (
                 <Stack
                   direction="row"
