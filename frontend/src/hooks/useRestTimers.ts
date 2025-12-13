@@ -58,11 +58,11 @@ export const useRestTimers = (options?: UseRestTimersOptions) => {
 
         // Schedule callback invocations outside of state update
         if (completedTimers.length > 0) {
-          setTimeout(() => {
+          queueMicrotask(() => {
             completedTimers.forEach((id) => {
               onTimerCompleteRef.current?.(id)
             })
-          }, 0)
+          })
         }
 
         return mutated ? next : prev

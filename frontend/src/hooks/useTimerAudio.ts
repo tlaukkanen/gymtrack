@@ -1,6 +1,13 @@
 import { useCallback, useRef } from 'react'
 import { useSettingsStore, selectTimerAudioMuted } from '../store/settings-store'
 
+// Browser compatibility for AudioContext
+const getAudioContext = (): AudioContext | null => {
+  const AudioContextClass = window.AudioContext || (window as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  if (!AudioContextClass) return null
+  return new AudioContextClass()
+}
+
 /**
  * Hook that provides a function to play a beep sound for timer notifications.
  * Uses the Web Audio API to generate a simple beep tone.
@@ -16,10 +23,11 @@ export const useTimerAudio = () => {
     try {
       // Create or reuse AudioContext
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+        audioContextRef.current = getAudioContext()
       }
 
       const audioContext = audioContextRef.current
+      if (!audioContext) return
 
       // Resume context if suspended (required by some browsers)
       if (audioContext.state === 'suspended') {
@@ -46,7 +54,6 @@ export const useTimerAudio = () => {
       oscillator.stop(audioContext.currentTime + 0.3)
     } catch {
       // Silently fail if Web Audio API is not available
-      console.warn('Web Audio API not available for timer beep')
     }
   }, [isMuted])
 
