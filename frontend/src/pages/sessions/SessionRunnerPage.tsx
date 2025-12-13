@@ -7,6 +7,7 @@ import { CheckCircle, Plus, Trash2 } from 'lucide-react'
 
 import { exerciseApi, sessionsApi } from '../../api/requests'
 import { useToast } from '../../components/feedback/ToastProvider'
+import { useProgress } from '../../hooks/useProgress'
 import { AddExerciseDialog } from '../../components/session-runner/AddExerciseDialog'
 import { ExerciseDetailsPanel } from '../../components/session-runner/ExerciseDetailsPanel'
 import { ExerciseList } from '../../components/session-runner/ExerciseList'
@@ -46,6 +47,7 @@ const SessionRunnerPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const queryClient = useQueryClient()
   const { push } = useToast()
+  const { showProgress, hideProgress } = useProgress()
   const { getTimerState, startTimer, pauseTimer, resetTimer } = useRestTimers()
 
   const [activeExerciseId, setActiveExerciseId] = useState<string | null>(null)
@@ -222,11 +224,18 @@ const SessionRunnerPage = () => {
   const updateSetMutation = useMutation({
     mutationFn: (payload: { setId: string; body: { actualWeight?: number | null; actualReps?: number | null; actualDurationSeconds?: number | null } }) =>
       sessionsApi.updateSet(sessionId!, payload.setId, payload.body),
+    onMutate: () => {
+      showProgress()
+    },
     onSuccess: () => {
+      hideProgress()
       invalidateSession()
       push({ title: 'Set logged', tone: 'success' })
     },
-    onError: () => push({ title: 'Unable to save set', tone: 'error' }),
+    onError: () => {
+      hideProgress()
+      push({ title: 'Unable to save set', tone: 'error' })
+    },
   })
 
   const addExerciseMutation = useMutation({
