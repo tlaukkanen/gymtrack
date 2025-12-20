@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
+import { Dialog, DialogActions, DialogContent, DialogTitle, Stack, Typography } from '@mui/material'
 import { MuscleMap, MuscleMapLegend, type MuscleEngagement } from '../../pages/analysis/MuscleMap'
 import type { ExerciseDto } from '../../types/api'
 import { Button } from '../ui/Button'
@@ -19,6 +19,8 @@ const getMuscleEngagementLevel = (level: string | number): number => {
       return 1
     case 'Some':
       return 0.5
+    case 'No':
+      return 0
     default:
       return 0
   }
@@ -65,11 +67,11 @@ export const ExerciseMuscleMapDialog = ({ open, exercise, onClose }: ExerciseMus
           <MuscleMapLegend />
         </Stack>
       </DialogContent>
-      <Stack direction="row" justifyContent="flex-end" sx={{ p: 2 }}>
+      <DialogActions>
         <Button variant="secondary" onClick={onClose}>
           Close
         </Button>
-      </Stack>
+      </DialogActions>
     </Dialog>
   )
 }

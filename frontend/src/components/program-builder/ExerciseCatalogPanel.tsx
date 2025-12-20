@@ -146,8 +146,16 @@ const ExerciseCatalogPanel = ({
       {exercises.map((exercise) => (
         <div
           key={exercise.id}
+          role="button"
+          tabIndex={0}
           className="rounded-2xl border border-slate-300 bg-slate-100 p-4 shadow-[0_2px_1px_rgba(2,6,23,0.25)] transition-colors hover:border-sky-400/50 cursor-pointer"
           onClick={() => onExerciseClick?.(exercise)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onExerciseClick?.(exercise)
+            }
+          }}
         >
           <div className="section-header">
             <div>
