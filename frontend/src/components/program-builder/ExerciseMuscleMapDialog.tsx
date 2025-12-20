@@ -38,8 +38,9 @@ const calculateMuscleEngagements = (exercise: ExerciseDto): MuscleEngagement[] =
   })
 
   // Convert to intensity percentage (0-100)
-  // For a single exercise, we'll use the raw engagement levels
-  // where 1.0 (Yes) = 100% and 0.5 (Some) = 50%
+  // For a single exercise, we use the raw engagement levels directly
+  // where Yes (1.0) = 100% intensity and Some (0.5) = 50% intensity
+  // This differs from the analysis page which normalizes across multiple exercises
   return Object.entries(muscleScores).map(([muscle, score]) => ({
     muscle,
     intensity: score * 100,
