@@ -9,6 +9,7 @@ const navItems: Array<{ to: string; label: string; icon: IconName }> = [
   { to: '/app/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { to: '/app/programs/new', label: 'New Program', icon: 'programs' },
   { to: '/app/sessions', label: 'Training Diary', icon: 'diary' },
+  { to: '/app/analysis', label: 'Analysis', icon: 'analysis' },
   { to: '/app/profile', label: 'Profile', icon: 'profile' },
 ]
 

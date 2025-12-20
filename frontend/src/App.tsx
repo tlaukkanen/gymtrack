@@ -5,6 +5,7 @@ import DashboardPage from './pages/dashboard/DashboardPage'
 import ProgramBuilderPage from './pages/programs/ProgramBuilderPage'
 import SessionRunnerPage from './pages/sessions/SessionRunnerPage'
 import TrainingDiaryPage from './pages/sessions/TrainingDiaryPage'
+import AnalysisPage from './pages/analysis/AnalysisPage'
 import ProfilePage from './pages/profile/ProfilePage'
 import AppLayout from './components/layout/AppLayout'
 import { ProtectedRoute } from './components/layout/ProtectedRoute'
@@ -47,6 +48,7 @@ const App = () => {
           <Route index element={<TrainingDiaryPage />} />
           <Route path=":sessionId" element={<SessionRunnerPage />} />
         </Route>
+        <Route path="analysis" element={<AnalysisPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/login" replace />} />

@@ -8,6 +8,7 @@ import {
   FiUser,
   FiSettings,
   FiX,
+  FiPieChart,
 } from 'react-icons/fi'
 
 export const iconRegistry = {
@@ -19,6 +20,7 @@ export const iconRegistry = {
   settings: FiSettings,
   menu: FiMenu,
   close: FiX,
+  analysis: FiPieChart,
 } as const
 
 export type IconName = keyof typeof iconRegistry

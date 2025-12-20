@@ -34,7 +34,7 @@ export const theme = createTheme({
     borderRadius: 14,
   },
   typography: {
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamily: 'Manrope, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     button: {
       fontWeight: 600,
       textTransform: 'none',

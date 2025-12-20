@@ -25,11 +25,11 @@ export default {
         danger: '#ef4444',
       },
       fontFamily: {
-        sans: ['Inter', 'var(--font-inter)', ...defaultTheme.fontFamily.sans],
+        sans: ['Manrope', ...defaultTheme.fontFamily.sans],
       },
       borderRadius: {
-        xl: '1rem',
-        '2xl': '1.5rem',
+        xl: '2px',
+        '2xl': '5px',
       },
       boxShadow: {
         card: '0 10px 40px rgba(15, 23, 42, 0.08)',
