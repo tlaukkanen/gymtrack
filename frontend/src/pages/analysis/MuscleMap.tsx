@@ -24,89 +24,89 @@ interface EllipseRegion {
 
 const MUSCLE_ELLIPSES: Record<string, { label: string; regions: EllipseRegion[] }> = {
   'Chest': { label: 'Chest', regions: [
-    { id: 'chest-left', view: 'front', cx: 19, cy: 24, rx: 5, ry: 5 },
-    { id: 'chest-right', view: 'front', cx: 31, cy: 24, rx: 5, ry: 5 },
+    { id: 'chest-left', view: 'front', cx: 22, cy: 24, rx: 6, ry: 4 },
+    { id: 'chest-right', view: 'front', cx: 31, cy: 24, rx: 6, ry: 4 },
   ]},
   'Upper Chest': { label: 'Upper Chest', regions: [
-    { id: 'chest-left', view: 'front', cx: 19, cy: 24, rx: 5, ry: 5 },
-    { id: 'chest-right', view: 'front', cx: 31, cy: 24, rx: 5, ry: 5 },
+    { id: 'chest-left', view: 'front', cx: 22, cy: 18, rx: 5, ry: 5 },
+    { id: 'chest-right', view: 'front', cx: 31, cy: 18, rx: 5, ry: 5 },
   ]},
   'Shoulders': { label: 'Shoulders', regions: [
-    { id: 'shoulder-left', view: 'front', cx: 10, cy: 21, rx: 4, ry: 5 },
-    { id: 'shoulder-right', view: 'front', cx: 40, cy: 21, rx: 4, ry: 5 },
+    { id: 'shoulder-left', view: 'front', cx: 16, cy: 20, rx: 4, ry: 5 },
+    { id: 'shoulder-right', view: 'front', cx: 38, cy: 20, rx: 4, ry: 5 },
   ]},
   'Rear Delts': { label: 'Rear Delts', regions: [
-    { id: 'rear-delt-left', view: 'back', cx: 60, cy: 21, rx: 4, ry: 5 },
-    { id: 'rear-delt-right', view: 'back', cx: 90, cy: 21, rx: 4, ry: 5 },
+    { id: 'rear-delt-left', view: 'back', cx: 61, cy: 20, rx: 4, ry: 4 },
+    { id: 'rear-delt-right', view: 'back', cx: 85, cy: 20, rx: 4, ry: 4 },
   ]},
   'Triceps': { label: 'Triceps', regions: [
-    { id: 'tricep-left', view: 'back', cx: 56, cy: 34, rx: 2.5, ry: 6 },
-    { id: 'tricep-right', view: 'back', cx: 94, cy: 34, rx: 2.5, ry: 6 },
+    { id: 'tricep-left', view: 'back', cx: 59, cy: 29, rx: 3, ry: 6 },
+    { id: 'tricep-right', view: 'back', cx: 86, cy: 29, rx: 3, ry: 6 },
   ]},
   'Biceps': { label: 'Biceps', regions: [
-    { id: 'bicep-left', view: 'front', cx: 7, cy: 34, rx: 2.5, ry: 6 },
-    { id: 'bicep-right', view: 'front', cx: 43, cy: 34, rx: 2.5, ry: 6 },
+    { id: 'bicep-left', view: 'front', cx: 15, cy: 28, rx: 3.5, ry: 6 },
+    { id: 'bicep-right', view: 'front', cx: 39, cy: 28, rx: 3.5, ry: 6 },
   ]},
   'Brachialis': { label: 'Brachialis', regions: [
-    { id: 'bicep-left', view: 'front', cx: 7, cy: 34, rx: 2.5, ry: 6 },
+    { id: 'bicep-left', view: 'front', cx: 11, cy: 34, rx: 2.5, ry: 6 },
     { id: 'bicep-right', view: 'front', cx: 43, cy: 34, rx: 2.5, ry: 6 },
   ]},
   'Forearms': { label: 'Forearms', regions: [
-    { id: 'forearm-left', view: 'front', cx: 5, cy: 48, rx: 2, ry: 6 },
-    { id: 'forearm-right', view: 'front', cx: 45, cy: 48, rx: 2, ry: 6 },
+    { id: 'forearm-left', view: 'front', cx: 11, cy: 39, rx: 3, ry: 6 },
+    { id: 'forearm-right', view: 'front', cx: 43, cy: 39, rx: 3, ry: 6 },
   ]},
   'Lats': { label: 'Lats', regions: [
-    { id: 'lat-left', view: 'back', cx: 64, cy: 32, rx: 5, ry: 8 },
-    { id: 'lat-right', view: 'back', cx: 86, cy: 32, rx: 5, ry: 8 },
+    { id: 'lat-left', view: 'back', cx: 68, cy: 31, rx: 5, ry: 8 },
+    { id: 'lat-right', view: 'back', cx: 79, cy: 31, rx: 5, ry: 8 },
   ]},
   'Back': { label: 'Back', regions: [
-    { id: 'upper-back', view: 'back', cx: 75, cy: 24, rx: 8, ry: 6 },
+    { id: 'upper-back', view: 'back', cx: 74, cy: 20, rx: 9, ry: 7 },
     { id: 'lat-left', view: 'back', cx: 64, cy: 32, rx: 5, ry: 8 },
     { id: 'lat-right', view: 'back', cx: 86, cy: 32, rx: 5, ry: 8 },
   ]},
   'Upper Back': { label: 'Upper Back', regions: [
-    { id: 'upper-back', view: 'back', cx: 75, cy: 24, rx: 8, ry: 6 },
+    { id: 'upper-back', view: 'back', cx: 74, cy: 24, rx: 8, ry: 6 },
   ]},
   'Lower Back': { label: 'Lower Back', regions: [
-    { id: 'lower-back', view: 'back', cx: 75, cy: 44, rx: 6, ry: 5 },
+    { id: 'lower-back', view: 'back', cx: 74, cy: 45, rx: 6, ry: 5 },
   ]},
   'Core': { label: 'Core', regions: [
-    { id: 'abs', view: 'front', cx: 25, cy: 38, rx: 5, ry: 9 },
+    { id: 'abs', view: 'front', cx: 27, cy: 36, rx: 6.5, ry: 11 },
   ]},
   'Obliques': { label: 'Obliques', regions: [
-    { id: 'oblique-left', view: 'front', cx: 16, cy: 38, rx: 3, ry: 7 },
-    { id: 'oblique-right', view: 'front', cx: 34, cy: 38, rx: 3, ry: 7 },
+    { id: 'oblique-left', view: 'front', cx: 20, cy: 36, rx: 3, ry: 7 },
+    { id: 'oblique-right', view: 'front', cx: 34, cy: 36, rx: 3, ry: 7 },
   ]},
   'Hip Flexors': { label: 'Hip Flexors', regions: [
-    { id: 'hip-left', view: 'front', cx: 19, cy: 51, rx: 4, ry: 3 },
-    { id: 'hip-right', view: 'front', cx: 31, cy: 51, rx: 4, ry: 3 },
+    { id: 'hip-left', view: 'front', cx: 21, cy: 44, rx: 4, ry: 4 },
+    { id: 'hip-right', view: 'front', cx: 33, cy: 44, rx: 4, ry: 4 },
   ]},
   'Glutes': { label: 'Glutes', regions: [
-    { id: 'glute-left', view: 'back', cx: 69, cy: 53, rx: 5, ry: 5 },
-    { id: 'glute-right', view: 'back', cx: 81, cy: 53, rx: 5, ry: 5 },
+    { id: 'glute-left', view: 'back', cx: 68, cy: 55, rx: 5, ry: 6 },
+    { id: 'glute-right', view: 'back', cx: 79, cy: 55, rx: 5, ry: 6 },
   ]},
   'Quadriceps': { label: 'Quadriceps', regions: [
-    { id: 'quad-left', view: 'front', cx: 19, cy: 67, rx: 5, ry: 11 },
-    { id: 'quad-right', view: 'front', cx: 31, cy: 67, rx: 5, ry: 11 },
+    { id: 'quad-left', view: 'front', cx: 20, cy: 56, rx: 5, ry: 11 },
+    { id: 'quad-right', view: 'front', cx: 33, cy: 56, rx: 5, ry: 11 },
   ]},
   'Hamstrings': { label: 'Hamstrings', regions: [
-    { id: 'hamstring-left', view: 'back', cx: 68, cy: 70, rx: 4, ry: 10 },
-    { id: 'hamstring-right', view: 'back', cx: 82, cy: 70, rx: 4, ry: 10 },
+    { id: 'hamstring-left', view: 'back', cx: 68, cy: 59, rx: 4, ry: 10 },
+    { id: 'hamstring-right', view: 'back', cx: 81, cy: 59, rx: 4, ry: 10 },
   ]},
   'Adductors': { label: 'Adductors', regions: [
     { id: 'adductor-left', view: 'front', cx: 22, cy: 62, rx: 2, ry: 6 },
     { id: 'adductor-right', view: 'front', cx: 28, cy: 62, rx: 2, ry: 6 },
   ]},
   'Calves': { label: 'Calves', regions: [
-    { id: 'calf-left', view: 'front', cx: 18, cy: 87, rx: 3, ry: 6 },
-    { id: 'calf-right', view: 'front', cx: 32, cy: 87, rx: 3, ry: 6 },
-    { id: 'calf-back-left', view: 'back', cx: 68, cy: 88, rx: 3, ry: 6 },
-    { id: 'calf-back-right', view: 'back', cx: 82, cy: 88, rx: 3, ry: 6 },
+    { id: 'calf-left', view: 'front', cx: 20, cy: 76, rx: 3, ry: 8 },
+    { id: 'calf-right', view: 'front', cx: 34, cy: 76, rx: 3, ry: 8 },
+    { id: 'calf-back-left', view: 'back', cx: 66, cy: 74, rx: 3, ry: 6 },
+    { id: 'calf-back-right', view: 'back', cx: 81, cy: 74, rx: 3, ry: 6 },
   ]},
   'Trapezius': { label: 'Trapezius', regions: [
-    { id: 'trap-front-left', view: 'front', cx: 20, cy: 16, rx: 3, ry: 2 },
-    { id: 'trap-front-right', view: 'front', cx: 30, cy: 16, rx: 3, ry: 2 },
-    { id: 'trap-back', view: 'back', cx: 75, cy: 16, rx: 8, ry: 5 },
+    { id: 'trap-front-left', view: 'front', cx: 22, cy: 16, rx: 3.5, ry: 2 },
+    { id: 'trap-front-right', view: 'front', cx: 31, cy: 16, rx: 3.5, ry: 2 },
+    { id: 'trap-back', view: 'back', cx: 73, cy: 15, rx: 8, ry: 5 },
   ]},
 }
 
@@ -244,7 +244,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
               width: '100%',
               height: 'auto',
               display: 'block',
-              filter: 'brightness(1.3) contrast(0.95)',
+              filter: 'brightness(1.1)',
             }}
           />
         ) : (
