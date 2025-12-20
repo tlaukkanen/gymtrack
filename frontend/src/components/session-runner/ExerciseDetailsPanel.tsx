@@ -384,6 +384,17 @@ export const ExerciseDetailsPanel = ({
           const isActiveSet = !isSessionCompleted && !completed && activeSetId === set.id
           const isLastSet = setIndex === exercise.sets.length - 1
 
+          // Determine callback when set is completed:
+          // - Last set with next exercise: auto-navigate to next exercise
+          // - Non-last set with rest time: start rest timer
+          // - Otherwise: no callback
+          let setCompletedCallback: (() => void) | undefined
+          if (isLastSet && hasNextExercise) {
+            setCompletedCallback = onGoToNextExercise
+          } else if (!isLastSet && exercise.restSeconds > 0) {
+            setCompletedCallback = () => onStartTimer(exercise.restSeconds)
+          }
+
           return (
             <SetLogRow
               key={set.id}
@@ -395,7 +406,7 @@ export const ExerciseDetailsPanel = ({
               isActive={isActiveSet}
               isCompleted={completed}
               showFieldLabels={setIndex === 0}
-              onSetCompleted={!isLastSet && exercise.restSeconds > 0 ? () => onStartTimer(exercise.restSeconds) : undefined}
+              onSetCompleted={setCompletedCallback}
             />
           )
         })}
