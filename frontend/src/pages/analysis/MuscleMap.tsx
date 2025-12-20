@@ -1,5 +1,5 @@
 import { Box, Tooltip, Typography } from '@mui/material'
-import { useState } from 'react'
+import { useState, type ReactElement } from 'react'
 
 export interface MuscleEngagement {
   muscle: string
@@ -168,7 +168,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
   })
 
   const renderGradientDefs = () => {
-    const gradients: JSX.Element[] = []
+    const gradients: ReactElement[] = []
     
     ALL_ELLIPSE_REGIONS.forEach((region) => {
       const intensity = regionIntensities[region.id] || 0

@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import ProgramExercisesPanel from '../../components/program-builder/ProgramExercisesPanel'
 import ExerciseCatalogPanel from '../../components/program-builder/ExerciseCatalogPanel'
+import { ExerciseMuscleMapDialog } from '../../components/program-builder/ExerciseMuscleMapDialog'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { restOptions } from '../../utils/time'
 import type { ExerciseDto, WorkoutProgramDetailDto } from '../../types/api'
@@ -53,6 +54,7 @@ const ProgramBuilderPage = () => {
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<NormalizedCategory | 'All'>('All')
   const [selectedPrimaryMuscle, setSelectedPrimaryMuscle] = useState<string | 'All'>('All')
+  const [selectedExerciseForMap, setSelectedExerciseForMap] = useState<ExerciseDto | null>(null)
 
   const { register, handleSubmit, setValue } = useForm<FormValues>({ defaultValues: { name: '', description: '' } })
   const [initialized, setInitialized] = useState(false)
@@ -290,8 +292,15 @@ const ProgramBuilderPage = () => {
           onPrimaryMuscleChange={setSelectedPrimaryMuscle}
           exercises={filteredCatalog}
           onAddExercise={addExercise}
+          onExerciseClick={setSelectedExerciseForMap}
         />
       </div>
+
+      <ExerciseMuscleMapDialog
+        open={selectedExerciseForMap !== null}
+        exercise={selectedExerciseForMap}
+        onClose={() => setSelectedExerciseForMap(null)}
+      />
     </div>
   )
 }

@@ -13,6 +13,7 @@ interface ExerciseCatalogPanelProps {
    onPrimaryMuscleChange: (value: string | 'All') => void
   exercises: ExerciseDto[]
   onAddExercise: (exercise: ExerciseDto) => void
+  onExerciseClick?: (exercise: ExerciseDto) => void
 }
 
 const resolveEngagementLabel = (level: ExerciseMuscleEngagementDto['level']): 'No' | 'Some' | 'Yes' => {
@@ -61,7 +62,8 @@ const ExerciseCatalogPanel = ({
   selectedPrimaryMuscle,
   onPrimaryMuscleChange,
   exercises,
-  onAddExercise
+  onAddExercise,
+  onExerciseClick
 }: ExerciseCatalogPanelProps) => (
   <Card className="border border-sky-500/30 bg-[rgba(2,6,23,0.85)] shadow-[0_25px_60px_rgba(8,47,73,0.45)]">
     <div className="section-header border-b border-white/5 pb-3">
@@ -144,7 +146,8 @@ const ExerciseCatalogPanel = ({
       {exercises.map((exercise) => (
         <div
           key={exercise.id}
-          className="rounded-2xl border border-slate-300 bg-slate-100 p-4 shadow-[0_2px_1px_rgba(2,6,23,0.25)] transition-colors hover:border-sky-400/50"
+          className="rounded-2xl border border-slate-300 bg-slate-100 p-4 shadow-[0_2px_1px_rgba(2,6,23,0.25)] transition-colors hover:border-sky-400/50 cursor-pointer"
+          onClick={() => onExerciseClick?.(exercise)}
         >
           <div className="section-header">
             <div>
@@ -158,7 +161,13 @@ const ExerciseCatalogPanel = ({
                 )}
               </p>
             </div>
-            <Button variant="secondary" onClick={() => onAddExercise(exercise)}>
+            <Button 
+              variant="secondary" 
+              onClick={(e) => {
+                e.stopPropagation()
+                onAddExercise(exercise)
+              }}
+            >
               Add
             </Button>
           </div>
