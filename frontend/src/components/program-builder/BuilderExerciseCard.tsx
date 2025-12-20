@@ -36,25 +36,18 @@ const BuilderExerciseCard = ({
   const setRemoveHandler = (setKey: string) => () => onRemoveSet(setKey)
 
   return (
-    <div className="card card-muted">
-      <div className="section-header">
+    <div className="rounded-lg border border-[var(--border)] bg-surface-muted p-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h4>{exercise.exerciseName}</h4>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <h4 className="text-text-primary font-semibold">{exercise.exerciseName}</h4>
+          <p className="text-text-muted text-sm flex items-center gap-2">
             <span>{exercise.category}</span>
-            <span
-              className="badge badge-some"
-              style={{
-                textTransform: 'uppercase',
-                fontSize: '0.65rem',
-                letterSpacing: '0.08em'
-              }}
-            >
+            <span className="badge badge-some uppercase text-[0.65rem] tracking-wider">
               {resolveRegion(exercise.primaryMuscle)}
             </span>
           </p>
         </div>
-        <div className="field-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex items-center gap-1">
           <IconButton
             size="small"
             onClick={onMoveUp}
@@ -76,10 +69,14 @@ const BuilderExerciseCard = ({
           </IconButton>
         </div>
       </div>
-      <div className="field-row" style={{ marginTop: '1rem' }}>
-        <label className="field-group" style={{ flex: 1 }}>
-          <span>Rest seconds</span>
-          <select value={exercise.restSeconds} onChange={(event) => onUpdate((entity) => ({ ...entity, restSeconds: Number(event.target.value) }))}>
+      <div className="flex flex-wrap gap-4 mt-4">
+        <label className="flex flex-col gap-2 flex-1">
+          <span className="text-text-muted text-sm">Rest seconds</span>
+          <select
+            className="bg-surface border border-[var(--border)] text-text-primary rounded-lg px-3 py-2"
+            value={exercise.restSeconds}
+            onChange={(event) => onUpdate((entity) => ({ ...entity, restSeconds: Number(event.target.value) }))}
+          >
             {restOptions.map((option) => (
               <option key={option} value={option}>
                 {option === 0 ? 'Off' : `${option}s`}
@@ -87,20 +84,21 @@ const BuilderExerciseCard = ({
             ))}
           </select>
         </label>
-        <label className="field-group" style={{ flex: 2 }}>
-          <span>Notes</span>
+        <label className="flex flex-col gap-2 flex-[2]">
+          <span className="text-text-muted text-sm">Notes</span>
           <input
+            className="bg-surface border border-[var(--border)] text-text-primary rounded-lg px-3 py-2"
             value={exercise.notes ?? ''}
             onChange={(event) => onUpdate((entity) => ({ ...entity, notes: event.target.value }))}
             placeholder="Tempo cues, reminders, etc."
           />
         </label>
       </div>
-      <div style={{ marginTop: '1rem' }}>
-        <div className="section-header" style={{ marginBottom: '0.5rem' }}>
-          <h5>Sets</h5>
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-2">
+          <h5 className="text-text-primary font-medium">Sets</h5>
         </div>
-        <div className="grid" style={{ gap: '0.75rem' }}>
+        <div className="grid gap-3">
           {exercise.sets.map((set, setIndex) => (
             <BuilderSetRow
               key={set.key}

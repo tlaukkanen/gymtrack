@@ -1,22 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
 :root {
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --card-muted: #f1f5f9;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --accent: #0ea5e9;
-  --accent-strong: #0284c7;
+  --bg: #0f0f0f;
+  --bg-muted: #1a1a1a;
+  --card: #1a1a1a;
+  --card-muted: #262626;
+  --border: #333333;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent: #f97316;
+  --accent-strong: #ea580c;
+  --accent-secondary: #22d3ee;
   --danger: #ef4444;
   --success: #22c55e;
-  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: var(--bg);
   color: var(--text);
 }
@@ -56,7 +56,7 @@ textarea {
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   border: 1px solid var(--border);
-  background: #ffffff;
+  background: var(--card);
   color: var(--text);
 }
 
@@ -80,7 +80,7 @@ textarea {
 }
 
 .sidebar {
-  background: #ffffff;
+  background: var(--card);
   border-right: 1px solid var(--border);
   padding: 1.5rem;
   display: flex;
@@ -130,9 +130,9 @@ textarea {
 
 .nav-link.active,
 .nav-link:hover {
-  background: rgba(14, 165, 233, 0.15);
+  background: rgba(249, 115, 22, 0.15);
   color: var(--text);
-  border-color: rgba(14, 165, 233, 0.4);
+  border-color: rgba(249, 115, 22, 0.4);
 }
 
 .main-content {
@@ -149,7 +149,7 @@ textarea {
     transform: translateX(-110%);
     border-radius: 0 0.5rem 0.5rem 0;
     z-index: 30;
-    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   }
 
   .sidebar.sidebar-open {
@@ -159,7 +159,7 @@ textarea {
   .sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.3);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(2px);
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -188,7 +188,7 @@ textarea {
     padding: 0.4rem 0.9rem;
     border-radius: 999px;
     border: 1px solid var(--border);
-    background: #ffffff;
+    background: var(--card);
     color: var(--text);
     cursor: pointer;
   }
@@ -210,9 +210,9 @@ textarea {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-strong), #2563eb);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
-  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
 }
 
 .btn-primary:disabled {
@@ -221,15 +221,15 @@ textarea {
 }
 
 .btn-secondary {
-  background: #f1f5f9;
+  background: var(--card-muted);
   color: var(--text);
   border: 1px solid var(--border);
 }
 
 .btn-danger {
-  background: rgba(248, 113, 113, 0.2);
+  background: rgba(239, 68, 68, 0.2);
   color: var(--danger);
-  border: 1px solid rgba(248, 113, 113, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .btn:hover:not(:disabled) {
@@ -241,7 +241,7 @@ textarea {
   border-radius: 0.5rem;
   padding: 1.25rem;
   border: 1px solid var(--border);
-  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .card-muted {
@@ -292,8 +292,8 @@ textarea {
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   font-size: 0.75rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--card-muted);
+  border: 1px solid var(--border);
   color: var(--text);
 }
 
@@ -469,8 +469,9 @@ textarea {
 }
 
 .exercise-list-item.active {
-  border-color: var(--accent);
-  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.25);
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: var(--text);
 }
 
 .exercise-list-item.completed {
@@ -481,13 +482,13 @@ textarea {
 
 .exercise-list-item.completed strong,
 .exercise-list-item.completed p {
-  color: #166534;
+  color: #4ade80;
 }
 
 .exercise-list-item.completed .badge {
   background: rgba(34, 197, 94, 0.15);
   border-color: rgba(34, 197, 94, 0.4);
-  color: #166534;
+  color: #4ade80;
 }
 
 @media (max-width: 700px) {
@@ -507,7 +508,7 @@ textarea {
 
   .mobile-exercise-carousel > .MuiIconButton-root {
     align-self: center;
-    background: #ffffff;
+    background: var(--card);
     border: 1px solid var(--border);
   }
 
@@ -573,11 +574,11 @@ textarea {
 
 .toast {
   min-width: 280px;
-  background: #ffffff;
+  background: var(--card);
   border-radius: 0.85rem;
   padding: 0.9rem 1rem;
   border: 1px solid var(--border);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .toast-success {

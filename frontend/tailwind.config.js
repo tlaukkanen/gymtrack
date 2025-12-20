@@ -8,18 +8,23 @@ export default {
     extend: {
       colors: {
         brand: {
-          DEFAULT: '#0ea5e9',
-          dark: '#0284c7',
-          light: '#38bdf8',
+          DEFAULT: '#f97316', // Electric orange
+          dark: '#ea580c',
+          light: '#fb923c',
+        },
+        accent: {
+          DEFAULT: '#22d3ee', // Cyan
+          dark: '#06b6d4',
+          light: '#67e8f9',
         },
         surface: {
-          DEFAULT: '#ffffff',
-          muted: '#f1f5f9',
-          darkest: '#e2e8f0',
+          DEFAULT: '#1a1a1a', // Dark charcoal
+          muted: '#262626',
+          darkest: '#0f0f0f', // Near black
         },
         text: {
-          primary: '#0f172a',
-          muted: '#64748b',
+          primary: '#f8fafc',
+          muted: '#94a3b8',
         },
         success: '#22c55e',
         danger: '#ef4444',
@@ -28,11 +33,12 @@ export default {
         sans: ['Manrope', ...defaultTheme.fontFamily.sans],
       },
       borderRadius: {
-        xl: '2px',
-        '2xl': '5px',
+        xl: '1rem',
+        '2xl': '1.5rem',
       },
       boxShadow: {
-        card: '0 10px 40px rgba(15, 23, 42, 0.08)',
+        card: '0 10px 40px rgba(0, 0, 0, 0.4)',
+        glow: '0 0 20px rgba(249, 115, 22, 0.3)',
       },
     },
   },
