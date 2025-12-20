@@ -148,6 +148,7 @@ const ExerciseCatalogPanel = ({
           key={exercise.id}
           role="button"
           tabIndex={0}
+          aria-label={`View muscle map for ${exercise.name}`}
           className="rounded-2xl border border-slate-300 bg-slate-100 p-4 shadow-[0_2px_1px_rgba(2,6,23,0.25)] transition-colors hover:border-sky-400/50 cursor-pointer"
           onClick={() => onExerciseClick?.(exercise)}
           onKeyDown={(e) => {
