@@ -225,20 +225,6 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
     )
   }
 
-  // Collect all unique regions
-  const allRegions: MuscleRegion[] = []
-  const seenIds = new Set<string>()
-  
-  Object.values(MUSCLE_REGIONS).forEach((group) => {
-    group.regions.forEach((region) => {
-      const key = `${region.id}-${region.view}`
-      if (!seenIds.has(key)) {
-        seenIds.add(key)
-        allRegions.push(region)
-      }
-    })
-  })
-
   return (
     <Box className="flex flex-col items-center gap-4">
       <Box
