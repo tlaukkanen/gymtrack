@@ -10,111 +10,104 @@ interface MuscleMapProps {
   engagements: MuscleEngagement[]
 }
 
-// Map muscle group names from backend to overlay regions
-// Coordinates are percentages relative to the image dimensions (viewBox 0 0 100 100)
+// Ellipse-based muscle regions for smoother overlay rendering
+// cx, cy = center position, rx, ry = radii (all as percentages of viewBox 0-100)
 // The image has front view on left half (0-50) and back view on right half (50-100)
-// Adjusted to match the anatomical muscle image layout
-const MUSCLE_REGIONS: Record<string, { label: string; regions: MuscleRegion[] }> = {
-  'Chest': { label: 'Chest', regions: [
-    { id: 'chest-left', view: 'front', path: 'M 15 20 Q 18 18, 22 20 L 23 28 Q 20 30, 15 28 Z' },
-    { id: 'chest-right', view: 'front', path: 'M 28 20 Q 32 18, 35 20 L 35 28 Q 30 30, 27 28 Z' },
-  ]},
-  'Upper Chest': { label: 'Upper Chest', regions: [
-    { id: 'chest-left', view: 'front', path: 'M 15 20 Q 18 18, 22 20 L 23 28 Q 20 30, 15 28 Z' },
-    { id: 'chest-right', view: 'front', path: 'M 28 20 Q 32 18, 35 20 L 35 28 Q 30 30, 27 28 Z' },
-  ]},
-  'Shoulders': { label: 'Shoulders', regions: [
-    { id: 'shoulder-left', view: 'front', path: 'M 8 17 Q 5 20, 7 28 L 14 26 L 14 19 Q 11 16, 8 17 Z' },
-    { id: 'shoulder-right', view: 'front', path: 'M 42 17 Q 45 20, 43 28 L 36 26 L 36 19 Q 39 16, 42 17 Z' },
-  ]},
-  'Rear Delts': { label: 'Rear Delts', regions: [
-    { id: 'rear-delt-left', view: 'back', path: 'M 58 17 Q 55 20, 57 28 L 64 26 L 64 19 Q 61 16, 58 17 Z' },
-    { id: 'rear-delt-right', view: 'back', path: 'M 92 17 Q 95 20, 93 28 L 86 26 L 86 19 Q 89 16, 92 17 Z' },
-  ]},
-  'Triceps': { label: 'Triceps', regions: [
-    { id: 'tricep-left', view: 'back', path: 'M 55 28 Q 53 32, 54 40 L 59 42 L 62 30 Z' },
-    { id: 'tricep-right', view: 'back', path: 'M 95 28 Q 97 32, 96 40 L 91 42 L 88 30 Z' },
-  ]},
-  'Biceps': { label: 'Biceps', regions: [
-    { id: 'bicep-left', view: 'front', path: 'M 5 28 Q 3 32, 4 40 L 9 42 L 12 30 Z' },
-    { id: 'bicep-right', view: 'front', path: 'M 45 28 Q 47 32, 46 40 L 41 42 L 38 30 Z' },
-  ]},
-  'Brachialis': { label: 'Brachialis', regions: [
-    { id: 'bicep-left', view: 'front', path: 'M 5 28 Q 3 32, 4 40 L 9 42 L 12 30 Z' },
-    { id: 'bicep-right', view: 'front', path: 'M 45 28 Q 47 32, 46 40 L 41 42 L 38 30 Z' },
-  ]},
-  'Forearms': { label: 'Forearms', regions: [
-    { id: 'forearm-left', view: 'front', path: 'M 3 42 Q 1 48, 3 56 L 8 56 L 10 44 Z' },
-    { id: 'forearm-right', view: 'front', path: 'M 47 42 Q 49 48, 47 56 L 42 56 L 40 44 Z' },
-  ]},
-  'Lats': { label: 'Lats', regions: [
-    { id: 'lat-left', view: 'back', path: 'M 62 24 Q 58 30, 62 40 L 70 38 L 70 26 Z' },
-    { id: 'lat-right', view: 'back', path: 'M 88 24 Q 92 30, 88 40 L 80 38 L 80 26 Z' },
-  ]},
-  'Back': { label: 'Back', regions: [
-    { id: 'upper-back', view: 'back', path: 'M 66 18 Q 75 15, 84 18 L 84 30 Q 75 33, 66 30 Z' },
-    { id: 'lat-left', view: 'back', path: 'M 62 24 Q 58 30, 62 40 L 70 38 L 70 26 Z' },
-    { id: 'lat-right', view: 'back', path: 'M 88 24 Q 92 30, 88 40 L 80 38 L 80 26 Z' },
-  ]},
-  'Upper Back': { label: 'Upper Back', regions: [
-    { id: 'upper-back', view: 'back', path: 'M 66 18 Q 75 15, 84 18 L 84 30 Q 75 33, 66 30 Z' },
-  ]},
-  'Lower Back': { label: 'Lower Back', regions: [
-    { id: 'lower-back', view: 'back', path: 'M 68 38 Q 75 36, 82 38 L 82 48 Q 75 50, 68 48 Z' },
-  ]},
-  'Core': { label: 'Core', regions: [
-    { id: 'abs', view: 'front', path: 'M 19 30 Q 25 28, 31 30 L 31 48 Q 25 50, 19 48 Z' },
-  ]},
-  'Obliques': { label: 'Obliques', regions: [
-    { id: 'oblique-left', view: 'front', path: 'M 14 30 L 18 30 L 18 46 Q 14 44, 14 40 Z' },
-    { id: 'oblique-right', view: 'front', path: 'M 36 30 L 32 30 L 32 46 Q 36 44, 36 40 Z' },
-  ]},
-  'Hip Flexors': { label: 'Hip Flexors', regions: [
-    { id: 'hip-left', view: 'front', path: 'M 16 48 L 23 48 L 22 55 Q 18 54, 16 52 Z' },
-    { id: 'hip-right', view: 'front', path: 'M 34 48 L 27 48 L 28 55 Q 32 54, 34 52 Z' },
-  ]},
-  'Glutes': { label: 'Glutes', regions: [
-    { id: 'glute-left', view: 'back', path: 'M 64 48 Q 68 46, 74 48 L 73 60 Q 67 58, 64 56 Z' },
-    { id: 'glute-right', view: 'back', path: 'M 86 48 Q 82 46, 76 48 L 77 60 Q 83 58, 86 56 Z' },
-  ]},
-  'Quadriceps': { label: 'Quadriceps', regions: [
-    { id: 'quad-left', view: 'front', path: 'M 14 55 Q 18 53, 24 55 L 22 78 Q 17 79, 13 78 Z' },
-    { id: 'quad-right', view: 'front', path: 'M 36 55 Q 32 53, 26 55 L 28 78 Q 33 79, 37 78 Z' },
-  ]},
-  'Hamstrings': { label: 'Hamstrings', regions: [
-    { id: 'hamstring-left', view: 'back', path: 'M 64 60 Q 68 58, 73 60 L 71 82 Q 66 83, 63 82 Z' },
-    { id: 'hamstring-right', view: 'back', path: 'M 86 60 Q 82 58, 77 60 L 79 82 Q 84 83, 87 82 Z' },
-  ]},
-  'Adductors': { label: 'Adductors', regions: [
-    { id: 'adductor-left', view: 'front', path: 'M 21 56 Q 24 55, 25 56 L 25 72 Q 22 72, 21 70 Z' },
-    { id: 'adductor-right', view: 'front', path: 'M 29 56 Q 26 55, 25 56 L 25 72 Q 28 72, 29 70 Z' },
-  ]},
-  'Calves': { label: 'Calves', regions: [
-    { id: 'calf-left', view: 'front', path: 'M 14 80 Q 18 78, 22 80 L 21 94 Q 17 95, 15 94 Z' },
-    { id: 'calf-right', view: 'front', path: 'M 36 80 Q 32 78, 28 80 L 29 94 Q 33 95, 35 94 Z' },
-    { id: 'calf-back-left', view: 'back', path: 'M 64 84 Q 68 82, 72 84 L 71 96 Q 67 97, 65 96 Z' },
-    { id: 'calf-back-right', view: 'back', path: 'M 86 84 Q 82 82, 78 84 L 79 96 Q 83 97, 85 96 Z' },
-  ]},
-  'Trapezius': { label: 'Trapezius', regions: [
-    { id: 'trap-front-left', view: 'front', path: 'M 18 14 Q 22 12, 25 14 L 24 18 Q 20 17, 17 18 Z' },
-    { id: 'trap-front-right', view: 'front', path: 'M 32 14 Q 28 12, 25 14 L 26 18 Q 30 17, 33 18 Z' },
-    { id: 'trap-back', view: 'back', path: 'M 66 12 Q 75 8, 84 12 L 84 22 Q 75 18, 66 22 Z' },
-  ]},
-}
-
-interface MuscleRegion {
+interface EllipseRegion {
   id: string
   view: 'front' | 'back'
-  path: string
+  cx: number
+  cy: number
+  rx: number
+  ry: number
 }
 
-// Get intensity gradient ID
-const getGradientId = (regionId: string, intensity: number): string => {
-  if (intensity === 0) return ''
-  if (intensity <= 25) return `gradient-green-${regionId}`
-  if (intensity <= 50) return `gradient-yellow-${regionId}`
-  if (intensity <= 75) return `gradient-orange-${regionId}`
-  return `gradient-red-${regionId}`
+const MUSCLE_ELLIPSES: Record<string, { label: string; regions: EllipseRegion[] }> = {
+  'Chest': { label: 'Chest', regions: [
+    { id: 'chest-left', view: 'front', cx: 19, cy: 24, rx: 5, ry: 5 },
+    { id: 'chest-right', view: 'front', cx: 31, cy: 24, rx: 5, ry: 5 },
+  ]},
+  'Upper Chest': { label: 'Upper Chest', regions: [
+    { id: 'chest-left', view: 'front', cx: 19, cy: 24, rx: 5, ry: 5 },
+    { id: 'chest-right', view: 'front', cx: 31, cy: 24, rx: 5, ry: 5 },
+  ]},
+  'Shoulders': { label: 'Shoulders', regions: [
+    { id: 'shoulder-left', view: 'front', cx: 10, cy: 21, rx: 4, ry: 5 },
+    { id: 'shoulder-right', view: 'front', cx: 40, cy: 21, rx: 4, ry: 5 },
+  ]},
+  'Rear Delts': { label: 'Rear Delts', regions: [
+    { id: 'rear-delt-left', view: 'back', cx: 60, cy: 21, rx: 4, ry: 5 },
+    { id: 'rear-delt-right', view: 'back', cx: 90, cy: 21, rx: 4, ry: 5 },
+  ]},
+  'Triceps': { label: 'Triceps', regions: [
+    { id: 'tricep-left', view: 'back', cx: 56, cy: 34, rx: 2.5, ry: 6 },
+    { id: 'tricep-right', view: 'back', cx: 94, cy: 34, rx: 2.5, ry: 6 },
+  ]},
+  'Biceps': { label: 'Biceps', regions: [
+    { id: 'bicep-left', view: 'front', cx: 7, cy: 34, rx: 2.5, ry: 6 },
+    { id: 'bicep-right', view: 'front', cx: 43, cy: 34, rx: 2.5, ry: 6 },
+  ]},
+  'Brachialis': { label: 'Brachialis', regions: [
+    { id: 'bicep-left', view: 'front', cx: 7, cy: 34, rx: 2.5, ry: 6 },
+    { id: 'bicep-right', view: 'front', cx: 43, cy: 34, rx: 2.5, ry: 6 },
+  ]},
+  'Forearms': { label: 'Forearms', regions: [
+    { id: 'forearm-left', view: 'front', cx: 5, cy: 48, rx: 2, ry: 6 },
+    { id: 'forearm-right', view: 'front', cx: 45, cy: 48, rx: 2, ry: 6 },
+  ]},
+  'Lats': { label: 'Lats', regions: [
+    { id: 'lat-left', view: 'back', cx: 64, cy: 32, rx: 5, ry: 8 },
+    { id: 'lat-right', view: 'back', cx: 86, cy: 32, rx: 5, ry: 8 },
+  ]},
+  'Back': { label: 'Back', regions: [
+    { id: 'upper-back', view: 'back', cx: 75, cy: 24, rx: 8, ry: 6 },
+    { id: 'lat-left', view: 'back', cx: 64, cy: 32, rx: 5, ry: 8 },
+    { id: 'lat-right', view: 'back', cx: 86, cy: 32, rx: 5, ry: 8 },
+  ]},
+  'Upper Back': { label: 'Upper Back', regions: [
+    { id: 'upper-back', view: 'back', cx: 75, cy: 24, rx: 8, ry: 6 },
+  ]},
+  'Lower Back': { label: 'Lower Back', regions: [
+    { id: 'lower-back', view: 'back', cx: 75, cy: 44, rx: 6, ry: 5 },
+  ]},
+  'Core': { label: 'Core', regions: [
+    { id: 'abs', view: 'front', cx: 25, cy: 38, rx: 5, ry: 9 },
+  ]},
+  'Obliques': { label: 'Obliques', regions: [
+    { id: 'oblique-left', view: 'front', cx: 16, cy: 38, rx: 3, ry: 7 },
+    { id: 'oblique-right', view: 'front', cx: 34, cy: 38, rx: 3, ry: 7 },
+  ]},
+  'Hip Flexors': { label: 'Hip Flexors', regions: [
+    { id: 'hip-left', view: 'front', cx: 19, cy: 51, rx: 4, ry: 3 },
+    { id: 'hip-right', view: 'front', cx: 31, cy: 51, rx: 4, ry: 3 },
+  ]},
+  'Glutes': { label: 'Glutes', regions: [
+    { id: 'glute-left', view: 'back', cx: 69, cy: 53, rx: 5, ry: 5 },
+    { id: 'glute-right', view: 'back', cx: 81, cy: 53, rx: 5, ry: 5 },
+  ]},
+  'Quadriceps': { label: 'Quadriceps', regions: [
+    { id: 'quad-left', view: 'front', cx: 19, cy: 67, rx: 5, ry: 11 },
+    { id: 'quad-right', view: 'front', cx: 31, cy: 67, rx: 5, ry: 11 },
+  ]},
+  'Hamstrings': { label: 'Hamstrings', regions: [
+    { id: 'hamstring-left', view: 'back', cx: 68, cy: 70, rx: 4, ry: 10 },
+    { id: 'hamstring-right', view: 'back', cx: 82, cy: 70, rx: 4, ry: 10 },
+  ]},
+  'Adductors': { label: 'Adductors', regions: [
+    { id: 'adductor-left', view: 'front', cx: 22, cy: 62, rx: 2, ry: 6 },
+    { id: 'adductor-right', view: 'front', cx: 28, cy: 62, rx: 2, ry: 6 },
+  ]},
+  'Calves': { label: 'Calves', regions: [
+    { id: 'calf-left', view: 'front', cx: 18, cy: 87, rx: 3, ry: 6 },
+    { id: 'calf-right', view: 'front', cx: 32, cy: 87, rx: 3, ry: 6 },
+    { id: 'calf-back-left', view: 'back', cx: 68, cy: 88, rx: 3, ry: 6 },
+    { id: 'calf-back-right', view: 'back', cx: 82, cy: 88, rx: 3, ry: 6 },
+  ]},
+  'Trapezius': { label: 'Trapezius', regions: [
+    { id: 'trap-front-left', view: 'front', cx: 20, cy: 16, rx: 3, ry: 2 },
+    { id: 'trap-front-right', view: 'front', cx: 30, cy: 16, rx: 3, ry: 2 },
+    { id: 'trap-back', view: 'back', cx: 75, cy: 16, rx: 8, ry: 5 },
+  ]},
 }
 
 // Get base color for gradient
@@ -136,12 +129,12 @@ const getIntensityLabel = (intensity: number): string => {
 // Muscle anatomy image URL - can be customized
 const MUSCLE_IMAGE_URL = '/muscle-anatomy.png'
 
-// Pre-compute all unique regions from MUSCLE_REGIONS (static data)
-const ALL_REGIONS: MuscleRegion[] = (() => {
-  const regions: MuscleRegion[] = []
+// Pre-compute all unique ellipse regions from MUSCLE_ELLIPSES (static data)
+const ALL_ELLIPSE_REGIONS: EllipseRegion[] = (() => {
+  const regions: EllipseRegion[] = []
   const seenIds = new Set<string>()
   
-  Object.values(MUSCLE_REGIONS).forEach((group) => {
+  Object.values(MUSCLE_ELLIPSES).forEach((group) => {
     group.regions.forEach((region) => {
       const key = `${region.id}-${region.view}`
       if (!seenIds.has(key)) {
@@ -161,7 +154,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
   const regionLabels: Record<string, string[]> = {}
 
   engagements.forEach(({ muscle, intensity }) => {
-    const group = MUSCLE_REGIONS[muscle]
+    const group = MUSCLE_ELLIPSES[muscle]
     if (group) {
       group.regions.forEach((region) => {
         // Take the max intensity for each region
@@ -177,12 +170,12 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
   const renderGradientDefs = () => {
     const gradients: JSX.Element[] = []
     
-    ALL_REGIONS.forEach((region) => {
+    ALL_ELLIPSE_REGIONS.forEach((region) => {
       const intensity = regionIntensities[region.id] || 0
       if (intensity === 0) return
 
       const color = getBaseColor(intensity)
-      const gradientId = getGradientId(region.id, intensity)
+      const gradientId = `gradient-${region.id}-${region.view}`
       
       gradients.push(
         <radialGradient
@@ -190,13 +183,13 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
           id={gradientId}
           cx="50%"
           cy="50%"
-          r="70%"
+          r="50%"
           fx="50%"
           fy="50%"
         >
-          <stop offset="0%" stopColor={`rgba(${color.r}, ${color.g}, ${color.b}, 0.6)`} />
-          <stop offset="60%" stopColor={`rgba(${color.r}, ${color.g}, ${color.b}, 0.4)`} />
-          <stop offset="100%" stopColor={`rgba(${color.r}, ${color.g}, ${color.b}, 0.1)`} />
+          <stop offset="0%" stopColor={`rgba(${color.r}, ${color.g}, ${color.b}, 0.7)`} />
+          <stop offset="50%" stopColor={`rgba(${color.r}, ${color.g}, ${color.b}, 0.5)`} />
+          <stop offset="100%" stopColor={`rgba(${color.r}, ${color.g}, ${color.b}, 0)`} />
         </radialGradient>
       )
     })
@@ -204,7 +197,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
     return gradients
   }
 
-  const renderOverlay = (region: MuscleRegion) => {
+  const renderEllipseOverlay = (region: EllipseRegion) => {
     const intensity = regionIntensities[region.id] || 0
     const labels = regionLabels[region.id] || []
     const tooltipContent = labels.length > 0
@@ -213,17 +206,19 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
 
     if (intensity === 0) return null
 
-    const gradientId = getGradientId(region.id, intensity)
+    const gradientId = `gradient-${region.id}-${region.view}`
 
     return (
       <Tooltip key={`${region.id}-${region.view}`} title={tooltipContent} arrow placement="top">
-        <path
-          d={region.path}
+        <ellipse
+          cx={region.cx}
+          cy={region.cy}
+          rx={region.rx}
+          ry={region.ry}
           fill={`url(#${gradientId})`}
           style={{ 
             cursor: 'pointer', 
             transition: 'opacity 0.3s ease',
-            mixBlendMode: 'multiply',
           }}
         />
       </Tooltip>
@@ -239,7 +234,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
           maxWidth: '100%',
         }}
       >
-        {/* Base anatomical image with grayscale filter */}
+        {/* Base anatomical image with brightness filter */}
         {!imageError ? (
           <img
             src={MUSCLE_IMAGE_URL}
@@ -249,6 +244,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
               width: '100%',
               height: 'auto',
               display: 'block',
+              filter: 'brightness(1.3) contrast(0.95)',
             }}
           />
         ) : (
@@ -274,7 +270,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
           </Box>
         )}
         
-        {/* SVG overlay for muscle highlights */}
+        {/* SVG overlay for muscle highlights using ellipses */}
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid meet"
@@ -291,7 +287,7 @@ export const MuscleMap = ({ engagements }: MuscleMapProps) => {
             {renderGradientDefs()}
           </defs>
           <g style={{ pointerEvents: 'auto' }}>
-            {ALL_REGIONS.map(renderOverlay)}
+            {ALL_ELLIPSE_REGIONS.map(renderEllipseOverlay)}
           </g>
         </svg>
       </Box>
@@ -309,8 +305,8 @@ export const MuscleMapLegend = () => (
     ].map(({ label, color }) => (
       <Box key={label} className="flex items-center gap-2">
         <Box
-          className="rounded"
-          sx={{ width: 16, height: 16, backgroundColor: color, border: '1px solid #94a3b8' }}
+          className="rounded-full"
+          sx={{ width: 16, height: 16, backgroundColor: color }}
         />
         <Typography variant="caption" color="text.secondary">
           {label}
