@@ -63,30 +63,30 @@ const ExerciseCatalogPanel = ({
   exercises,
   onAddExercise
 }: ExerciseCatalogPanelProps) => (
-  <Card className="border border-sky-500/30 bg-[rgba(2,6,23,0.85)] shadow-[0_25px_60px_rgba(8,47,73,0.45)]">
+  <Card className="border border-brand/30 bg-surface shadow-card">
     <div className="section-header border-b border-white/5 pb-3">
       <div className="flex flex-col">
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Catalog</span>
-        <h3 className="mt-1">Exercise catalog</h3>
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Catalog</span>
+        <h3 className="mt-1 text-text-primary">Exercise catalog</h3>
       </div>
-      <span className="rounded-full border border-sky-500/30 px-3 py-1 text-sm text-[var(--text-muted)]">{totalCount} total</span>
+      <span className="rounded-full border border-brand/30 px-3 py-1 text-sm text-text-muted">{totalCount} total</span>
     </div>
-    <p className="mt-3 text-sm text-[var(--text-muted)]">Keep the catalog handy while you refine the program order.</p>
+    <p className="mt-3 text-sm text-text-muted">Keep the catalog handy while you refine the program order.</p>
     <div className="mt-4 flex flex-col gap-3">
       <input
-        className="w-full"
+        className="w-full bg-surface-muted border border-[var(--border)] text-text-primary rounded-lg px-3 py-2 placeholder:text-text-muted"
         placeholder="Search by name or muscle"
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
       />
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-[var(--text-muted)]">Category:</span>
+        <span className="text-text-muted">Category:</span>
         {categoryOptions.map((option) => (
           <button
             key={option.value}
             type="button"
             className={`badge badge-${option.style} ${
-              selectedCategory === option.value ? 'ring-1 ring-sky-400 ring-offset-1 ring-offset-slate-950' : ''
+              selectedCategory === option.value ? 'ring-1 ring-brand ring-offset-1 ring-offset-surface-darkest' : ''
             }`}
             onClick={() => onCategoryChange(option.value)}
           >
@@ -95,13 +95,13 @@ const ExerciseCatalogPanel = ({
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <span className="text-[var(--text-muted)]">Primary muscle:</span>
+        <span className="text-text-muted">Primary muscle:</span>
         {primaryMuscleOptions.map((option) => (
           <button
             key={option.value}
             type="button"
             className={`badge badge-some ${
-              selectedPrimaryMuscle === option.value ? 'ring-1 ring-emerald-400 ring-offset-1 ring-offset-slate-950' : ''
+              selectedPrimaryMuscle === option.value ? 'ring-1 ring-success ring-offset-1 ring-offset-surface-darkest' : ''
             }`}
             onClick={() => onPrimaryMuscleChange(option.value)}
           >
@@ -109,9 +109,9 @@ const ExerciseCatalogPanel = ({
           </button>
         ))}
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--text-muted)]">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-muted">
         <span>
-          Showing <strong>{exercises.length}</strong>
+          Showing <strong className="text-text-primary">{exercises.length}</strong>
           {selectedCategory !== 'All' && (
             <>
               {' '}
@@ -128,7 +128,7 @@ const ExerciseCatalogPanel = ({
         {(selectedCategory !== 'All' || selectedPrimaryMuscle !== 'All' || search) && (
           <button
             type="button"
-            className="badge badge-no hover:border-sky-400/60 hover:text-sky-200"
+            className="badge badge-no hover:border-brand/60 hover:text-brand"
             onClick={() => {
               onSearchChange('')
               onCategoryChange('All')
@@ -144,15 +144,15 @@ const ExerciseCatalogPanel = ({
       {exercises.map((exercise) => (
         <div
           key={exercise.id}
-          className="rounded-2xl border border-slate-300 bg-slate-100 p-4 shadow-[0_2px_1px_rgba(2,6,23,0.25)] transition-colors hover:border-sky-400/50"
+          className="rounded-2xl border border-[var(--border)] bg-surface-muted p-4 shadow-card transition-colors hover:border-brand/50"
         >
           <div className="section-header">
             <div>
-              <strong className="text-base">{exercise.name}</strong>
-              <p className="text-sm text-[var(--text-muted)]">
+              <strong className="text-base text-text-primary">{exercise.name}</strong>
+              <p className="text-sm text-text-muted">
                 {exercise.primaryMuscle}
                 {resolveRegion(exercise.primaryMuscle) !== 'Other' && (
-                  <span className="ml-2 inline-flex items-center rounded-full bg-slate-800/80 px-2 py-0.5 text-[0.7rem] uppercase tracking-wide text-slate-200">
+                  <span className="ml-2 inline-flex items-center rounded-full bg-brand/20 px-2 py-0.5 text-[0.7rem] uppercase tracking-wide text-brand-light">
                     {resolveRegion(exercise.primaryMuscle)}
                   </span>
                 )}
