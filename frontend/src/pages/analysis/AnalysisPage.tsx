@@ -12,6 +12,7 @@ import {
 import { subDays } from 'date-fns'
 import { Card } from '../../components/ui/Card'
 import { exerciseApi, sessionsApi } from '../../api/requests'
+import { getMuscleEngagementScore } from '../../utils/muscleEngagement'
 import { MuscleMap, MuscleMapLegend, type MuscleEngagement } from './MuscleMap'
 import type { ExerciseDto, WorkoutSessionSummaryDto } from '../../types/api'
 
@@ -31,21 +32,6 @@ const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
   { value: '14', label: 'Last 14 days' },
   { value: '30', label: 'Last 30 days' },
 ]
-
-const getMuscleEngagementLevel = (level: string | number): number => {
-  if (typeof level === 'number') {
-    // 0 = No, 1 = Some, 2 = Yes
-    return level === 2 ? 1 : level === 1 ? 0.5 : 0
-  }
-  switch (level) {
-    case 'Yes':
-      return 1
-    case 'Some':
-      return 0.5
-    default:
-      return 0
-  }
-}
 
 const calculateMuscleEngagements = (
   sessions: WorkoutSessionSummaryDto[],
@@ -70,9 +56,9 @@ const calculateMuscleEngagements = (
 
       exercise.muscleEngagements.forEach((engagement) => {
         const muscle = engagement.muscleGroup
-        const level = getMuscleEngagementLevel(engagement.level)
-        if (level > 0) {
-          muscleScores[muscle] = (muscleScores[muscle] || 0) + level
+        const score = getMuscleEngagementScore(engagement.level)
+        if (score > 0) {
+          muscleScores[muscle] = (muscleScores[muscle] || 0) + score
           muscleCounts[muscle] = (muscleCounts[muscle] || 0) + 1
         }
       })

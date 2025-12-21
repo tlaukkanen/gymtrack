@@ -7,6 +7,8 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import ProgramExercisesPanel from '../../components/program-builder/ProgramExercisesPanel'
 import ExerciseCatalogPanel from '../../components/program-builder/ExerciseCatalogPanel'
+import ExerciseMuscleDialog from '../../components/program-builder/ExerciseMuscleDialog'
+import WorkoutMuscleMap from '../../components/program-builder/WorkoutMuscleMap'
 import { useToast } from '../../components/feedback/ToastProvider'
 import { restOptions } from '../../utils/time'
 import type { ExerciseDto, WorkoutProgramDetailDto } from '../../types/api'
@@ -53,6 +55,7 @@ const ProgramBuilderPage = () => {
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<NormalizedCategory | 'All'>('All')
   const [selectedPrimaryMuscle, setSelectedPrimaryMuscle] = useState<string | 'All'>('All')
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseDto | null>(null)
 
   const { register, handleSubmit, setValue } = useForm<FormValues>({ defaultValues: { name: '', description: '' } })
   const [initialized, setInitialized] = useState(false)
@@ -269,6 +272,21 @@ const ProgramBuilderPage = () => {
       </Card>
 
       <div className="flex flex-col gap-6">
+        {builderExercises.length > 0 && (
+          <Card>
+            <div className="section-header border-b border-white/5 pb-3">
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Overview</span>
+                <h3 className="mt-1 text-text-primary">Workout muscle map</h3>
+              </div>
+            </div>
+            <WorkoutMuscleMap
+              builderExercises={builderExercises}
+              exerciseCatalog={exercisesQuery.data ?? []}
+            />
+          </Card>
+        )}
+
         <ProgramExercisesPanel
           exercises={builderExercises}
           restOptions={restOptions}
@@ -290,8 +308,15 @@ const ProgramBuilderPage = () => {
           onPrimaryMuscleChange={setSelectedPrimaryMuscle}
           exercises={filteredCatalog}
           onAddExercise={addExercise}
+          onExerciseClick={setSelectedExercise}
         />
       </div>
+
+      <ExerciseMuscleDialog
+        exercise={selectedExercise}
+        open={selectedExercise !== null}
+        onClose={() => setSelectedExercise(null)}
+      />
     </div>
   )
 }
