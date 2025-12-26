@@ -45,7 +45,6 @@ export interface WorkoutProgramExerciseDto {
   id?: string | null
   exerciseId: string
   displayOrder: number
-  restSeconds: number
   notes?: string | null
   sets: ExerciseSetDto[]
 }
@@ -99,7 +98,6 @@ export interface WorkoutSessionExerciseDto {
   isCatalogExercise: boolean
   notes?: string | null
   orderPerformed: number
-  restSeconds: number
   sets: WorkoutSessionSetDto[]
 }
 
@@ -180,13 +178,11 @@ export interface AddSessionExerciseRequest {
   customCategory?: string | null
   customPrimaryMuscle?: string | null
   notes?: string | null
-  restSeconds: number
   sets?: AddSessionExerciseSetDto[] | null
 }
 
 export interface UpdateSessionExerciseRequest {
   notes?: string | null
-  restSeconds?: number | null
 }
 
 export interface ReorderSessionExercisesRequest {

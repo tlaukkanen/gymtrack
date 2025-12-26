@@ -6,7 +6,6 @@ import type { BuilderExercise, BuilderSet } from './types'
 
 interface ProgramExercisesPanelProps {
   exercises: BuilderExercise[]
-  restOptions: number[]
   onMoveExercise: (index: number, direction: -1 | 1) => void
   onRemoveExercise: (key: string) => void
   onUpdateExercise: (key: string, updater: (exercise: BuilderExercise) => BuilderExercise) => void
@@ -17,7 +16,6 @@ interface ProgramExercisesPanelProps {
 
 const ProgramExercisesPanel = ({
   exercises,
-  restOptions,
   onMoveExercise,
   onRemoveExercise,
   onUpdateExercise,
@@ -42,7 +40,6 @@ const ProgramExercisesPanel = ({
             exercise={exercise}
             index={index}
             total={exercises.length}
-            restOptions={restOptions}
             onMoveUp={() => onMoveExercise(index, -1)}
             onMoveDown={() => onMoveExercise(index, 1)}
             onRemove={() => onRemoveExercise(exercise.key)}

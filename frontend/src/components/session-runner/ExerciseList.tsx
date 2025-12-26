@@ -107,7 +107,7 @@ export const ExerciseList = ({
                     <span className="mobile-exercise-slide__progress">{progressLabel}</span>
                   </div>
                   {currentExercise.isAdHoc && <span className="badge" style={{ marginLeft: '0' }}>Custom</span>}
-                  <p>{currentExercise.sets.length} sets • Rest {currentExercise.restSeconds}s</p>
+                  <p>{currentExercise.sets.length} sets</p>
                 </button>
               </>
             ) : (
@@ -138,7 +138,7 @@ export const ExerciseList = ({
             <button type="button" onClick={() => onSelect(exercise.id)}>
               <strong>{exercise.exerciseName}</strong>
               {exercise.isAdHoc && <span className="badge" style={{ marginLeft: '0.5rem' }}>Custom</span>}
-              <p>{exercise.sets.length} sets • Rest {exercise.restSeconds}s</p>
+              <p>{exercise.sets.length} sets</p>
             </button>
           </div>
         )

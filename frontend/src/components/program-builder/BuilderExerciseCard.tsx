@@ -9,7 +9,6 @@ interface BuilderExerciseCardProps {
   exercise: BuilderExercise
   index: number
   total: number
-  restOptions: number[]
   onMoveUp: () => void
   onMoveDown: () => void
   onRemove: () => void
@@ -23,7 +22,6 @@ const BuilderExerciseCard = ({
   exercise,
   index,
   total,
-  restOptions,
   onMoveUp,
   onMoveDown,
   onRemove,
@@ -71,20 +69,6 @@ const BuilderExerciseCard = ({
       </div>
       <div className="flex flex-wrap gap-4 mt-4">
         <label className="flex flex-col gap-2 flex-1">
-          <span className="text-text-muted text-sm">Rest seconds</span>
-          <select
-            className="bg-surface border border-[var(--border)] text-text-primary rounded-lg px-3 py-2"
-            value={exercise.restSeconds}
-            onChange={(event) => onUpdate((entity) => ({ ...entity, restSeconds: Number(event.target.value) }))}
-          >
-            {restOptions.map((option) => (
-              <option key={option} value={option}>
-                {option === 0 ? 'Off' : `${option}s`}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-2 flex-[2]">
           <span className="text-text-muted text-sm">Notes</span>
           <input
             className="bg-surface border border-[var(--border)] text-text-primary rounded-lg px-3 py-2"

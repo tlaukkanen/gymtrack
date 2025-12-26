@@ -8,7 +8,6 @@ import { Card } from '../../components/ui/Card'
 import ProgramExercisesPanel from '../../components/program-builder/ProgramExercisesPanel'
 import ExerciseCatalogPanel from '../../components/program-builder/ExerciseCatalogPanel'
 import { useToast } from '../../components/feedback/ToastProvider'
-import { restOptions } from '../../utils/time'
 import type { ExerciseDto, WorkoutProgramDetailDto } from '../../types/api'
 import type { BuilderExercise, BuilderSet, NormalizedCategory } from '../../components/program-builder/types'
 
@@ -22,7 +21,6 @@ const normalizeCategory = (category?: ExerciseDto['category']): NormalizedCatego
   return 'Strength'
 }
 
-const DEFAULT_EXERCISE_REST_SECONDS = 90
 
 const createSet = (category: NormalizedCategory): BuilderSet => ({
   key: crypto.randomUUID(),
@@ -80,7 +78,6 @@ const ProgramBuilderPage = () => {
           primaryMuscle,
           secondaryMuscle: sourceExercise?.secondaryMuscle ?? null,
           category,
-          restSeconds: exercise.restSeconds,
           notes: exercise.notes ?? '',
           sets: exercise.sets.map((set) => ({
             key: crypto.randomUUID(),
@@ -128,7 +125,6 @@ const ProgramBuilderPage = () => {
       primaryMuscle: exercise.primaryMuscle,
       secondaryMuscle: exercise.secondaryMuscle ?? null,
       category,
-      restSeconds: DEFAULT_EXERCISE_REST_SECONDS,
       notes: '',
       sets: [createSet(category)],
     }
@@ -185,7 +181,6 @@ const ProgramBuilderPage = () => {
           id: exercise.sourceId ?? null,
           exerciseId: exercise.exerciseId,
           displayOrder: index + 1,
-          restSeconds: exercise.restSeconds,
           notes: exercise.notes,
           sets: exercise.sets.map((set, setIndex) => ({
             id: set.sourceId ?? null,
@@ -271,7 +266,6 @@ const ProgramBuilderPage = () => {
       <div className="flex flex-col gap-6">
         <ProgramExercisesPanel
           exercises={builderExercises}
-          restOptions={restOptions}
           onMoveExercise={moveExercise}
           onRemoveExercise={removeExercise}
           onUpdateExercise={updateExercise}

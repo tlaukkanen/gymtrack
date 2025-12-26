@@ -17,7 +17,6 @@ export interface BuilderExercise {
   primaryMuscle: string
   secondaryMuscle?: string | null
   category: NormalizedCategory
-  restSeconds: number
   notes?: string
   sets: BuilderSet[]
 }

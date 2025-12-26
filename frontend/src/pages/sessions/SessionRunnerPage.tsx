@@ -24,11 +24,6 @@ import type {
 } from '../../types/api'
 import { formatDateTime, restOptions } from '../../utils/time'
 
-const clampRestSeconds = (value: number) => {
-  if (!Number.isFinite(value) || value < 0) return 0
-  return Math.min(600, Math.max(0, Math.round(value)))
-}
-
 const SWIPE_DISTANCE_THRESHOLD = 60
 const SWIPE_DURATION_THRESHOLD_MS = 800
 
@@ -267,9 +262,8 @@ const SessionRunnerPage = () => {
   })
 
   const updateExerciseMutation = useMutation({
-    mutationFn: (payload: { sessionExerciseId: string; restSeconds?: number; notes?: string }) =>
+    mutationFn: (payload: { sessionExerciseId: string; notes?: string }) =>
       sessionsApi.updateExercise(sessionId!, payload.sessionExerciseId, {
-        restSeconds: payload.restSeconds,
         notes: payload.notes,
       }),
     onSuccess: () => {
@@ -317,10 +311,9 @@ const SessionRunnerPage = () => {
     onError: () => push({ title: 'Unable to delete session', tone: 'error' }),
   })
 
-  const handleSaveExerciseDetails = (exerciseId: string, restSeconds: number, notes: string) => {
+  const handleSaveExerciseDetails = (exerciseId: string, notes: string) => {
     updateExerciseMutation.mutate({
       sessionExerciseId: exerciseId,
-      restSeconds: clampRestSeconds(restSeconds),
       notes,
     })
   }
@@ -478,7 +471,7 @@ const SessionRunnerPage = () => {
                   onStartTimer={(seconds) => startTimer(activeExercise.id, seconds)}
                   onPauseTimer={() => pauseTimer(activeExercise.id)}
                   onResetTimer={() => resetTimer(activeExercise.id)}
-                  onSaveDetails={({ restSeconds, notes }) => handleSaveExerciseDetails(activeExercise.id, restSeconds, notes)}
+                  onSaveDetails={({ notes }) => handleSaveExerciseDetails(activeExercise.id, notes)}
                   onAddSet={() => handleAddSet(activeExercise.id)}
                   onSaveSet={(setId, body) => updateSetMutation.mutate({ setId, body })}
                   onRemoveSet={(set, options) => handleRemoveSet(set, activeExercise, options)}
@@ -511,7 +504,7 @@ const SessionRunnerPage = () => {
                   onStartTimer={(seconds) => startTimer(activeExercise.id, seconds)}
                   onPauseTimer={() => pauseTimer(activeExercise.id)}
                   onResetTimer={() => resetTimer(activeExercise.id)}
-                  onSaveDetails={({ restSeconds, notes }) => handleSaveExerciseDetails(activeExercise.id, restSeconds, notes)}
+                  onSaveDetails={({ notes }) => handleSaveExerciseDetails(activeExercise.id, notes)}
                   onAddSet={() => handleAddSet(activeExercise.id)}
                   onSaveSet={(setId, body) => updateSetMutation.mutate({ setId, body })}
                   onRemoveSet={(set, options) => handleRemoveSet(set, activeExercise, options)}

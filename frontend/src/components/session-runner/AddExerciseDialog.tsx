@@ -5,16 +5,9 @@ import type { AddSessionExerciseRequest, ExerciseDto } from '../../types/api'
 import { useToast } from '../feedback/ToastProvider'
 import { Button } from '../ui/Button'
 
-const DEFAULT_CATALOG_REST_SECONDS = 90
-
 const clampSetCount = (value: number) => {
   if (!Number.isFinite(value) || value <= 0) return 1
   return Math.min(10, Math.max(1, Math.round(value)))
-}
-
-const clampRestSeconds = (value: number) => {
-  if (!Number.isFinite(value) || value < 0) return 0
-  return Math.min(600, Math.max(0, Math.round(value)))
 }
 
 const createSetTemplate = (isCardio: boolean) => ({
@@ -37,11 +30,9 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
   const [catalogSearch, setCatalogSearch] = useState('')
   const [catalogExerciseId, setCatalogExerciseId] = useState('')
   const [catalogNotes, setCatalogNotes] = useState('')
-  const [catalogRestSeconds, setCatalogRestSeconds] = useState(90)
   const [catalogSetCount, setCatalogSetCount] = useState(3)
   const [customName, setCustomName] = useState('')
   const [customCategory, setCustomCategory] = useState<'Strength' | 'Cardio'>('Strength')
-  const [customRestSeconds, setCustomRestSeconds] = useState(90)
   const [customSetCount, setCustomSetCount] = useState(3)
   const [customNotes, setCustomNotes] = useState('')
 
@@ -50,11 +41,9 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
     setCatalogSearch('')
     setCatalogExerciseId('')
     setCatalogNotes('')
-    setCatalogRestSeconds(90)
     setCatalogSetCount(3)
     setCustomName('')
     setCustomCategory('Strength')
-    setCustomRestSeconds(90)
     setCustomSetCount(3)
     setCustomNotes('')
   }
@@ -77,7 +66,7 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
 
   useEffect(() => {
     if (!catalogSelection) return
-    setCatalogRestSeconds(DEFAULT_CATALOG_REST_SECONDS)
+    // No need to set rest seconds anymore
   }, [catalogSelection?.id])
 
   const handleAdd = () => {
@@ -90,7 +79,6 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
       const sets = Array.from({ length: clampSetCount(catalogSetCount) }, () => createSetTemplate(isCardio))
       onAddExercise({
         exerciseId: catalogSelection.id,
-        restSeconds: clampRestSeconds(catalogRestSeconds),
         notes: catalogNotes,
         sets,
       })
@@ -107,7 +95,6 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
     onAddExercise({
       customExerciseName: customName.trim(),
       customCategory,
-      restSeconds: clampRestSeconds(customRestSeconds),
       notes: customNotes,
       sets,
     })
@@ -133,22 +120,14 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
                 </option>
               ))}
             </TextField>
-            <div className="field-row">
-              <TextField
-                label="Rest seconds"
-                type="number"
-                value={catalogRestSeconds}
-                onChange={(event) => setCatalogRestSeconds(Number(event.target.value))}
-                inputProps={{ min: 0, max: 600 }}
-              />
-              <TextField
-                label="Initial sets"
-                type="number"
-                value={catalogSetCount}
-                onChange={(event) => setCatalogSetCount(Number(event.target.value))}
-                inputProps={{ min: 1, max: 10 }}
-              />
-            </div>
+            <TextField
+              label="Initial sets"
+              type="number"
+              value={catalogSetCount}
+              onChange={(event) => setCatalogSetCount(Number(event.target.value))}
+              inputProps={{ min: 1, max: 10 }}
+              fullWidth
+            />
             <TextField label="Notes" multiline minRows={2} value={catalogNotes} onChange={(event) => setCatalogNotes(event.target.value)} />
           </Stack>
         ) : (
@@ -158,22 +137,14 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
               <option value="Strength">Strength</option>
               <option value="Cardio">Cardio</option>
             </TextField>
-            <div className="field-row">
-              <TextField
-                label="Rest seconds"
-                type="number"
-                value={customRestSeconds}
-                onChange={(event) => setCustomRestSeconds(Number(event.target.value))}
-                inputProps={{ min: 0, max: 600 }}
-              />
-              <TextField
-                label="Initial sets"
-                type="number"
-                value={customSetCount}
-                onChange={(event) => setCustomSetCount(Number(event.target.value))}
-                inputProps={{ min: 1, max: 10 }}
-              />
-            </div>
+            <TextField
+              label="Initial sets"
+              type="number"
+              value={customSetCount}
+              onChange={(event) => setCustomSetCount(Number(event.target.value))}
+              inputProps={{ min: 1, max: 10 }}
+              fullWidth
+            />
             <TextField label="Notes" multiline minRows={2} value={customNotes} onChange={(event) => setCustomNotes(event.target.value)} />
           </Stack>
         )}

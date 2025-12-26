@@ -52,7 +52,7 @@ interface ExerciseDetailsPanelProps {
   onStartTimer: (seconds: number) => void
   onPauseTimer: () => void
   onResetTimer: () => void
-  onSaveDetails: (payload: { restSeconds: number; notes: string }) => void
+  onSaveDetails: (payload: { notes: string }) => void
   onAddSet: () => void
   onSaveSet: (setId: string, body: { actualWeight?: number | null; actualReps?: number | null; actualDurationSeconds?: number | null }) => void
   onRemoveSet: (set: WorkoutSessionSetDto, options?: { force?: boolean }) => void
@@ -98,6 +98,12 @@ export const ExerciseDetailsPanel = ({
   const exerciseCategory = useMemo(() => deriveExerciseCategory(exercise), [exercise])
   const isStickyTimer = !isSessionCompleted && isMobile
   const quickAddSeconds = useMemo(() => (restOptions.length ? restOptions : QUICK_ADD_SECONDS).slice(0, 3), [restOptions])
+  
+  // Get default rest time - use 90 seconds as fallback
+  const defaultRestSeconds = useMemo(() => {
+    return 90 // Default rest time when no per-set rest is available
+  }, [])
+  
   const isTimerPinnedActive = isStickyTimer && isTimerPinned
   const showQuickAddChips = !isTimerPinnedActive
   const timerButtonSize = isTimerPinnedActive ? 'medium' : isMobile ? 'large' : 'medium'
@@ -214,8 +220,7 @@ export const ExerciseDetailsPanel = ({
 
       <Stack spacing={2}>
         <ExerciseDetailsEditor
-          key={`${exercise.id}-${exercise.restSeconds}-${exercise.notes ?? ''}`}
-          initialRestSeconds={exercise.restSeconds}
+          key={`${exercise.id}-${exercise.notes ?? ''}`}
           initialNotes={exercise.notes ?? ''}
           isSessionCompleted={isSessionCompleted}
           isMobile={isMobile}
@@ -283,7 +288,7 @@ export const ExerciseDetailsPanel = ({
                 <Stack direction="row" spacing={timerStackSpacing} alignItems="center" justifyContent="space-between">
                   <IconButton
                     color="primary"
-                    onClick={() => onStartTimer(exercise.restSeconds)}
+                    onClick={() => onStartTimer(defaultRestSeconds)}
                     disabled={isSessionCompleted}
                     size={timerButtonSize as 'small' | 'medium' | 'large'}
                     sx={{ minWidth: timerButtonMin, minHeight: timerButtonMin }}
@@ -322,7 +327,7 @@ export const ExerciseDetailsPanel = ({
                   >
                     <IconButton
                       color="primary"
-                      onClick={() => onStartTimer(exercise.restSeconds)}
+                      onClick={() => onStartTimer(defaultRestSeconds)}
                       disabled={isSessionCompleted}
                       size={timerButtonSize as 'small' | 'medium' | 'large'}
                       aria-label="Start rest timer"
@@ -386,13 +391,13 @@ export const ExerciseDetailsPanel = ({
 
           // Determine callback when set is completed:
           // - Last set with next exercise: auto-navigate to next exercise
-          // - Non-last set with rest time: start rest timer
+          // - Non-last set: start rest timer with default time
           // - Otherwise: no callback
           let setCompletedCallback: (() => void) | undefined
           if (isLastSet && hasNextExercise) {
             setCompletedCallback = onGoToNextExercise
-          } else if (!isLastSet && exercise.restSeconds > 0) {
-            setCompletedCallback = () => onStartTimer(exercise.restSeconds)
+          } else if (!isLastSet) {
+            setCompletedCallback = () => onStartTimer(defaultRestSeconds)
           }
 
           return (
@@ -455,29 +460,26 @@ export const ExerciseDetailsPanel = ({
 }
 
 interface ExerciseDetailsEditorProps {
-  initialRestSeconds: number
   initialNotes: string
   isSessionCompleted: boolean
   isMobile: boolean
   isUpdateExercisePending: boolean
-  onSaveDetails: (payload: { restSeconds: number; notes: string }) => void
+  onSaveDetails: (payload: { notes: string }) => void
 }
 
 const ExerciseDetailsEditor = ({
-  initialRestSeconds,
   initialNotes,
   isSessionCompleted,
   isMobile,
   isUpdateExercisePending,
   onSaveDetails,
 }: ExerciseDetailsEditorProps) => {
-  const [restSeconds, setRestSeconds] = useState(initialRestSeconds)
   const [notes, setNotes] = useState(initialNotes)
 
-  const hasDetailChanges = restSeconds !== initialRestSeconds || notes !== initialNotes
+  const hasDetailChanges = notes !== initialNotes
 
   const handleSaveDetails = () => {
-    onSaveDetails({ restSeconds, notes })
+    onSaveDetails({ notes })
   }
 
   return (
@@ -489,18 +491,6 @@ const ExerciseDetailsEditor = ({
         gap: isMobile ? '0.75rem' : '1rem',
       }}
     >
-      <TextField
-        label="Rest seconds between sets"
-        type="number"
-        value={restSeconds}
-        onChange={(event) => {
-          const nextValue = Number(event.target.value)
-          setRestSeconds(Number.isFinite(nextValue) ? nextValue : 0)
-        }}
-        inputProps={{ min: 0, max: 600 }}
-        fullWidth
-        disabled={isSessionCompleted}
-      />
       <TextField
         label="My Notes"
         multiline
