@@ -59,7 +59,6 @@ public sealed class WorkoutSessionServiceTests : IDisposable
                     IsAdHoc = true,
                     CustomExerciseName = "Bench",
                     OrderPerformed = 1,
-                    RestSeconds = 90,
                     CreatedAt = _clock.UtcNow.AddHours(-1),
                     Sets =
                     {
@@ -260,7 +259,6 @@ public sealed class WorkoutSessionServiceTests : IDisposable
             ExerciseId = exerciseId,
             ProgramExerciseId = null,
             OrderPerformed = 1,
-            RestSeconds = 60,
             CreatedAt = completedAt.AddHours(-1),
             Sets =
             {

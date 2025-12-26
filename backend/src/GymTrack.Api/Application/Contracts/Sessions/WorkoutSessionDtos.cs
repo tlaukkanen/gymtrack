@@ -26,7 +26,6 @@ public record WorkoutSessionExerciseDto(
     bool IsCatalogExercise,
     string? Notes,
     int OrderPerformed,
-    int RestSeconds,
     IReadOnlyCollection<WorkoutSessionSetDto> Sets
 );
 
@@ -85,13 +84,11 @@ public record AddSessionExerciseRequest(
     string? CustomCategory,
     string? CustomPrimaryMuscle,
     string? Notes,
-    int RestSeconds,
     IReadOnlyCollection<AddSessionExerciseSetDto>? Sets
 );
 
 public record UpdateSessionExerciseRequest(
-    string? Notes,
-    int? RestSeconds
+    string? Notes
 );
 
 public record ReorderSessionExercisesRequest(

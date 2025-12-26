@@ -12,9 +12,6 @@ namespace GymTrack.Infrastructure.Services.Sessions;
 
 internal sealed class WorkoutSessionService : IWorkoutSessionService
 {
-    private const int MinRestSeconds = 0;
-    private const int MaxRestSeconds = 600;
-
     private readonly GymTrackDbContext _dbContext;
     private readonly IDateTimeProvider _clock;
 
@@ -65,7 +62,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
                 CustomPrimaryMuscle = null,
                 Notes = exercise.Notes,
                 OrderPerformed = index + 1,
-                RestSeconds = exercise.RestSeconds,
                 CreatedAt = _clock.UtcNow,
                 Sets = exercise.Sets
                     .OrderBy(s => s.Sequence)
@@ -310,7 +306,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
 
     public async Task<WorkoutSessionDto> AddExerciseAsync(Guid userId, Guid sessionId, AddSessionExerciseRequest request, CancellationToken cancellationToken = default)
     {
-        ValidateRestSeconds(request.RestSeconds);
         ValidateExerciseSelection(request);
 
         var session = await BuildSessionAggregateQuery()
@@ -351,7 +346,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
             CustomCategory = request.CustomCategory ?? exercise?.Category.ToString(),
             CustomPrimaryMuscle = request.CustomPrimaryMuscle ?? exercise?.PrimaryMuscle,
             Notes = request.Notes,
-            RestSeconds = request.RestSeconds,
             OrderPerformed = nextOrder,
             CreatedAt = now,
             Sets = BuildSessionSetsFromDefinitions(request.Sets)
@@ -461,12 +455,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         }
 
         EnsureSessionNotCompleted(exercise.WorkoutSession);
-
-        if (request.RestSeconds.HasValue)
-        {
-            ValidateRestSeconds(request.RestSeconds.Value);
-            exercise.RestSeconds = request.RestSeconds.Value;
-        }
 
         if (request.Notes is not null)
         {
@@ -586,14 +574,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
                 .ThenInclude(e => e.Sets)
             .Include(s => s.Exercises)
                 .ThenInclude(e => e.Exercise);
-    }
-
-    private static void ValidateRestSeconds(int restSeconds)
-    {
-        if (restSeconds is < MinRestSeconds or > MaxRestSeconds)
-        {
-            throw new ValidationException($"Rest seconds must be between {MinRestSeconds} and {MaxRestSeconds}.");
-        }
     }
 
     private static void ValidateExerciseSelection(AddSessionExerciseRequest request)
@@ -803,7 +783,6 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
                         e.ExerciseId.HasValue,
                         e.Notes,
                         e.OrderPerformed,
-                        e.RestSeconds,
                         mappedSets);
                 })
                 .ToList(),

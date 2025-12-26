@@ -13,7 +13,6 @@ public record WorkoutProgramExerciseDto(
     Guid? Id,
     Guid ExerciseId,
     int DisplayOrder,
-    int RestSeconds,
     string? Notes,
     IReadOnlyCollection<ExerciseSetDto> Sets
 );

@@ -137,7 +137,6 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
                     e.Id,
                     e.ExerciseId,
                     e.DisplayOrder,
-                    e.RestSeconds,
                     e.Notes,
                     e.Sets
                         .OrderBy(s => s.Sequence)
@@ -162,7 +161,6 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
                 Id = exercise.Id ?? Guid.NewGuid(),
                 ExerciseId = exercise.ExerciseId,
                 DisplayOrder = exercise.DisplayOrder,
-                RestSeconds = exercise.RestSeconds,
                 Notes = exercise.Notes,
                 CreatedAt = _clock.UtcNow
             };
@@ -202,7 +200,6 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
 
                 existingExercise.ExerciseId = exerciseDto.ExerciseId;
                 existingExercise.DisplayOrder = exerciseDto.DisplayOrder;
-                existingExercise.RestSeconds = exerciseDto.RestSeconds;
                 existingExercise.Notes = exerciseDto.Notes;
                 existingExercise.UpdatedAt = _clock.UtcNow;
 
@@ -217,7 +214,6 @@ internal sealed class WorkoutProgramService : IWorkoutProgramService
                 ExerciseId = exerciseDto.ExerciseId,
                 CreatedAt = _clock.UtcNow,
                 DisplayOrder = exerciseDto.DisplayOrder,
-                RestSeconds = exerciseDto.RestSeconds,
                 Notes = exerciseDto.Notes,
                 UpdatedAt = _clock.UtcNow
             };

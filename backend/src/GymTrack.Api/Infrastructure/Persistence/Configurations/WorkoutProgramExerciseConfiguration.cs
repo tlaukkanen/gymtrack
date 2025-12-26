@@ -10,7 +10,6 @@ public class WorkoutProgramExerciseConfiguration : IEntityTypeConfiguration<Work
     {
         builder.ToTable("WorkoutProgramExercises");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.RestSeconds).HasDefaultValue(60);
         builder.HasMany(x => x.Sets)
             .WithOne(x => x.WorkoutProgramExercise)
             .HasForeignKey(x => x.WorkoutProgramExerciseId)

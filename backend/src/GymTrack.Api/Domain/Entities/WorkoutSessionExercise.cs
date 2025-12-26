@@ -16,6 +16,5 @@ public class WorkoutSessionExercise : AuditableEntity
     public string? CustomPrimaryMuscle { get; set; }
     public string? Notes { get; set; }
     public int OrderPerformed { get; set; }
-    public int RestSeconds { get; set; }
     public ICollection<WorkoutSessionSet> Sets { get; set; } = new List<WorkoutSessionSet>();
 }

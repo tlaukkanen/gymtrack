@@ -61,7 +61,6 @@ public sealed class WorkoutProgramServiceTests : IDisposable
             WorkoutProgramId = program.Id,
             ExerciseId = exercise.Id,
             DisplayOrder = 1,
-            RestSeconds = 90,
             Notes = string.Empty,
             Sets =
             {
@@ -89,7 +88,6 @@ public sealed class WorkoutProgramServiceTests : IDisposable
                     programExercise.Id,
                     programExercise.ExerciseId,
                     programExercise.DisplayOrder,
-                    programExercise.RestSeconds,
                     programExercise.Notes,
                     new[]
                     {
@@ -152,7 +150,6 @@ public sealed class WorkoutProgramServiceTests : IDisposable
             WorkoutProgramId = program.Id,
             ExerciseId = bench.Id,
             DisplayOrder = 1,
-            RestSeconds = 90,
             Notes = string.Empty,
             Sets =
             {
@@ -180,7 +177,6 @@ public sealed class WorkoutProgramServiceTests : IDisposable
                     existingExercise.Id,
                     existingExercise.ExerciseId,
                     existingExercise.DisplayOrder,
-                    existingExercise.RestSeconds,
                     existingExercise.Notes,
                     new[]
                     {
@@ -196,7 +192,6 @@ public sealed class WorkoutProgramServiceTests : IDisposable
                     null,
                     squat.Id,
                     2,
-                    120,
                     "Add new squat work",
                     new[]
                     {
