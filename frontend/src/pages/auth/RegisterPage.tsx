@@ -56,6 +56,13 @@ const RegisterPage = () => {
   return (
     <div className="main-content" style={{ maxWidth: 440, margin: '0 auto' }}>
       <div className="card">
+        <div style={{ marginBottom: '1.5rem' }}>
+          <img
+            src="/gymtrack_logo_white_with_dumbbell.svg"
+            alt="GymTrack"
+            style={{ height: 36 }}
+          />
+        </div>
         <h2>Create your account</h2>
         <p style={{ color: 'var(--text-muted)' }}>Define programs, track sessions, and stay consistent.</p>
         <form onSubmit={handleSubmit(onSubmit)} className="grid" style={{ gap: '1rem', marginTop: '1.5rem' }}>

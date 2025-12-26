@@ -94,7 +94,9 @@ const LoginPage = () => {
         </p>
         <p style={{ margin: '0.35rem 0 0' }}>© {currentYear} Tommi Laukkanen</p>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem 1rem 0' }}>
-          <img src="/gymtrack_logo_white_with_dumbbell.svg" alt="GymTrack" style={{ height: '2rem' }} />
+          <Link to="/">
+            <img src="/gymtrack_logo_white_with_dumbbell.svg" alt="GymTrack" style={{ height: '2rem' }} />
+          </Link>
         </div>
       </footer>
     </div>
