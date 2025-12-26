@@ -15,6 +15,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -25,6 +26,46 @@ import { Button } from '../../components/ui/Button'
 import { sessionsApi } from '../../api/requests'
 import { formatDateTime } from '../../utils/time'
 import type { PagedResult, SessionListStatus, WorkoutSessionSummaryDto } from '../../types/api'
+
+const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+const getCalendarWeeks = () => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Find Monday of current week (week starts on Monday)
+  const currentDayOfWeek = today.getDay()
+  const daysFromMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1
+  const currentWeekMonday = new Date(today)
+  currentWeekMonday.setDate(today.getDate() - daysFromMonday)
+
+  // Go back 3 more weeks to get 4 weeks total
+  const startMonday = new Date(currentWeekMonday)
+  startMonday.setDate(currentWeekMonday.getDate() - 21)
+
+  const weeks: Date[][] = []
+  const cursor = new Date(startMonday)
+
+  for (let week = 0; week < 4; week++) {
+    const days: Date[] = []
+    for (let day = 0; day < 7; day++) {
+      days.push(new Date(cursor))
+      cursor.setDate(cursor.getDate() + 1)
+    }
+    weeks.push(days)
+  }
+
+  return { weeks, today }
+}
+
+const formatDateKey = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+const isSameDay = (a: Date, b: Date) =>
+  a.getFullYear() === b.getFullYear() &&
+  a.getMonth() === b.getMonth() &&
+  a.getDate() === b.getDate()
 
 const SESSION_STATUS_OPTIONS: Array<{ value: SessionListStatus; label: string }> = [
   { value: 'All', label: 'All sessions' },
@@ -66,6 +107,31 @@ const TrainingDiaryPage = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [isFilterExpanded, setIsFilterExpanded] = useState(false)
+
+  const { weeks: calendarWeeks, today } = useMemo(() => getCalendarWeeks(), [])
+
+  // Fetch recent sessions for calendar highlighting (last 4 weeks)
+  const calendarStartDate = calendarWeeks[0]?.[0]
+  const calendarQuery = useQuery<PagedResult<WorkoutSessionSummaryDto>>({
+    queryKey: ['sessions', 'calendar', calendarStartDate ? formatDateKey(calendarStartDate) : null],
+    queryFn: () =>
+      sessionsApi.list({
+        page: 1,
+        pageSize: 100,
+        status: 'All',
+        startedFrom: calendarStartDate ? formatDateKey(calendarStartDate) : undefined,
+      }),
+    enabled: !!calendarStartDate,
+  })
+
+  const workoutDays = useMemo(() => {
+    const days = new Set<string>()
+    for (const session of calendarQuery.data?.items ?? []) {
+      const date = new Date(session.startedAt)
+      days.add(formatDateKey(date))
+    }
+    return days
+  }, [calendarQuery.data])
 
   const filters = useMemo(() => {
     const statusParam = (searchParams.get('status') as SessionListStatus) ?? 'All'
@@ -191,6 +257,71 @@ const TrainingDiaryPage = () => {
           Start New Session
         </Button>
       </div>
+
+      {/* 4-Week Calendar */}
+      <Card muted sx={{ p: 2 }}>
+        <Stack spacing={1.5}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Last 4 Weeks
+          </Typography>
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(7, 1fr)"
+            gap={0.5}
+            sx={{ maxWidth: 320, mx: 'auto', width: '100%' }}
+          >
+            {WEEKDAY_LABELS.map((label) => (
+              <Typography
+                key={label}
+                variant="caption"
+                color="text.secondary"
+                textAlign="center"
+                sx={{ pb: 0.5 }}
+              >
+                {label}
+              </Typography>
+            ))}
+            {calendarWeeks.flatMap((week) =>
+              week.map((date) => {
+                const dateKey = formatDateKey(date)
+                const isToday = isSameDay(date, today)
+                const hasWorkout = workoutDays.has(dateKey)
+                const dayNum = date.getDate()
+
+                return (
+                  <Tooltip
+                    key={dateKey}
+                    title={
+                      isToday
+                        ? hasWorkout
+                          ? 'Today – Workout logged'
+                          : 'Today'
+                        : hasWorkout
+                          ? 'Workout logged'
+                          : ''
+                    }
+                    arrow
+                    disableHoverListener={!isToday && !hasWorkout}
+                  >
+                    <Box
+                      className={clsx(
+                        'flex items-center justify-center rounded-md text-sm font-medium transition-colors',
+                        'h-9 w-full',
+                        hasWorkout && !isToday && 'bg-orange-100 text-orange-700',
+                        isToday && hasWorkout && 'bg-brand text-white ring-2 ring-orange-300',
+                        isToday && !hasWorkout && 'ring-2 ring-brand bg-slate-700 text-slate-200',
+                        !hasWorkout && !isToday && 'bg-slate-700 text-slate-400'
+                      )}
+                    >
+                      {dayNum}
+                    </Box>
+                  </Tooltip>
+                )
+              })
+            )}
+          </Box>
+        </Stack>
+      </Card>
 
       <Card muted sx={{ p: filterCardPadding }}>
         <Stack spacing={filterStackSpacing}>

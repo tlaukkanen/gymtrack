@@ -61,10 +61,10 @@ const LoginPage = () => {
   return (
     <div className="main-content" style={{ maxWidth: 420, margin: '0 auto' }}>
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <img src="/weights.png" alt="Weights" style={heroImageStyles} />
+        <img src="/gymtrack-gym-640.png" alt="Weights" style={heroImageStyles} />
         <div className='mt-5' style={{ padding: '0 1.5rem 1.5rem' }}>
           <h2>Sign in</h2>
-        <p style={{ color: 'var(--text-muted)' }}>Your training programs and sessions.</p>
+        <p style={{ color: 'var(--text-muted)' }}>Track your workouts and progress.</p>
         <form onSubmit={handleSubmit(onSubmit)} className="grid" style={{ gap: '1rem', marginTop: '1.5rem' }}>
           <label className="field-group">
             <span>Email</span>
@@ -81,7 +81,7 @@ const LoginPage = () => {
           </Button>
         </form>
           <p style={{ marginTop: '1.25rem', fontSize: '0.9rem' }}>
-            New here? <Link to="/register">Create an account</Link>
+            New here? <Link to="/register">Create an account</Link><br/><i>(Invite only - for now)</i>
           </p>
         </div>
       </div>
@@ -93,6 +93,9 @@ const LoginPage = () => {
           </a>
         </p>
         <p style={{ margin: '0.35rem 0 0' }}>© {currentYear} Tommi Laukkanen</p>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '1.5rem 1rem 0' }}>
+          <img src="/gymtrack_logo_white_with_dumbbell.svg" alt="GymTrack" style={{ height: '2rem' }} />
+        </div>
       </footer>
     </div>
   )
