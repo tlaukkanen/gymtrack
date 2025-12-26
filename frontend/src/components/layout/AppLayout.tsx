@@ -51,8 +51,12 @@ const AppLayout = () => {
           isSidebarOpen && 'sidebar-open'
         )}
       >
-        <h1>GymTrack</h1>
-        <p>Train intentionally, capture every rep.</p>
+        <img
+          src="/gymtrack_logo_white_with_dumbbell.svg"
+          alt="GymTrack"
+          className="h-8 w-auto"
+        />
+        
         <div className="nav-links">
           {navItems.map((item) => (
             <NavLink
