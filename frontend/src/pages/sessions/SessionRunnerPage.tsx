@@ -13,6 +13,7 @@ import { ExerciseDetailsPanel } from '../../components/session-runner/ExerciseDe
 import { ExerciseList } from '../../components/session-runner/ExerciseList'
 import ProgramLoadChart from '../../components/session-runner/ProgramLoadChart'
 import ExerciseLoadChart from '../../components/session-runner/ExerciseLoadChart'
+import SessionMuscleMap from '../../components/session-runner/SessionMuscleMap'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { useRestTimers } from '../../hooks/useRestTimers'
@@ -428,6 +429,21 @@ const SessionRunnerPage = () => {
           </Button>
         </div>
       </div>
+
+        {session.completedAt && exercisesQuery.data && (
+          <Card>
+            <div className="section-header border-b border-white/5 pb-3">
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Overview</span>
+                <h3 className="mt-1 text-text-primary">Workout muscle map</h3>
+              </div>
+            </div>
+            <SessionMuscleMap
+              sessionExercises={orderedExercises}
+              exerciseCatalog={exercisesQuery.data}
+            />
+          </Card>
+        )}
 
         {showProgressionChart && session && (
           <ProgramLoadChart
