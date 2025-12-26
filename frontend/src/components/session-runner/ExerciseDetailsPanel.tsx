@@ -99,10 +99,8 @@ export const ExerciseDetailsPanel = ({
   const isStickyTimer = !isSessionCompleted && isMobile
   const quickAddSeconds = useMemo(() => (restOptions.length ? restOptions : QUICK_ADD_SECONDS).slice(0, 3), [restOptions])
   
-  // Get default rest time - use 90 seconds as fallback
-  const defaultRestSeconds = useMemo(() => {
-    return 90 // Default rest time when no per-set rest is available
-  }, [])
+  // Default rest time for all exercises
+  const defaultRestSeconds = 90
   
   const isTimerPinnedActive = isStickyTimer && isTimerPinned
   const showQuickAddChips = !isTimerPinnedActive

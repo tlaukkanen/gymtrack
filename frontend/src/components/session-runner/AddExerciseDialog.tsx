@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Dialog, DialogActions, DialogContent, DialogTitle, Stack, Tab, Tabs, TextField } from '@mui/material'
 
 import type { AddSessionExerciseRequest, ExerciseDto } from '../../types/api'
@@ -63,11 +63,6 @@ export const AddExerciseDialog = ({ open, exercises, isSubmitting, onClose, onAd
     if (!catalogExerciseId || !exercises) return undefined
     return exercises.find((exercise) => exercise.id === catalogExerciseId)
   }, [catalogExerciseId, exercises])
-
-  useEffect(() => {
-    if (!catalogSelection) return
-    // No need to set rest seconds anymore
-  }, [catalogSelection?.id])
 
   const handleAdd = () => {
     if (tab === 'catalog') {
