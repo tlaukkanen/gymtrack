@@ -354,18 +354,21 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
             RestSeconds = request.RestSeconds,
             OrderPerformed = nextOrder,
             CreatedAt = now,
-            Sets = BuildSessionSetsFromDefinitions(request.Sets)
+            Sets = BuildSessionSetsFromDefinitions(
+                request.Sets,
+                now)
         };
 
         if (newExercise.Sets.Count == 0)
         {
-            newExercise.Sets.Add(CreateDefaultSessionSet(1));
+            newExercise.Sets.Add(CreateDefaultSessionSet(
+                1,
+                now));
         }
 
         foreach (var pair in newExercise.Sets.Select((set, index) => (set, index)))
         {
             pair.set.SetIndex = pair.index + 1;
-            pair.set.CreatedAt = now;
         }
 
         session.Exercises.Add(newExercise);
@@ -612,7 +615,9 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         }
     }
 
-    private static List<WorkoutSessionSet> BuildSessionSetsFromDefinitions(IReadOnlyCollection<AddSessionExerciseSetDto>? definitions)
+    private static List<WorkoutSessionSet> BuildSessionSetsFromDefinitions(
+        IReadOnlyCollection<AddSessionExerciseSetDto>? definitions,
+        DateTimeOffset createdAt)
     {
         if (definitions is null || definitions.Count == 0)
         {
@@ -626,12 +631,15 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
                 PlannedWeight = def.PlannedWeight,
                 PlannedReps = def.PlannedReps,
                 PlannedDurationSeconds = def.PlannedDurationSeconds,
-                IsUserAdded = true
+                IsUserAdded = true,
+                CreatedAt = createdAt
             })
             .ToList();
     }
 
-    private static WorkoutSessionSet CreateDefaultSessionSet(int index)
+    private static WorkoutSessionSet CreateDefaultSessionSet(
+        int index,
+        DateTimeOffset createdAt)
     {
         return new WorkoutSessionSet
         {
@@ -640,7 +648,8 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
             PlannedWeight = null,
             PlannedDurationSeconds = null,
             IsUserAdded = true,
-            SetIndex = index
+            SetIndex = index,
+            CreatedAt = createdAt
         };
     }
 
