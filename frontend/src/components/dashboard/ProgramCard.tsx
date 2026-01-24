@@ -40,7 +40,7 @@ const ProgramCard = ({
     : 'No completed workouts yet'
 
   return (
-    <Card className="card-muted">
+    <Card className="card-muted" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="section-header" style={{ alignItems: 'flex-start' }}>
         <div>
           <h4>{program.name}</h4>
@@ -66,7 +66,7 @@ const ProgramCard = ({
           {deletePending ? 'Removing…' : 'Delete'}
         </Button>
       </div>
-      <div className="field-row" style={{ marginTop: '1.25rem' }}>
+      <div className="field-row" style={{ marginTop: 'auto', paddingTop: '1.25rem' }}>
         <Button
           onClick={onStartSession}
           startIcon={<Play size={16} />}
