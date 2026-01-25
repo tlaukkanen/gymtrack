@@ -6,6 +6,9 @@
 # ---- Frontend build ----
 FROM node:20-alpine AS frontend-build
 WORKDIR /frontend
+# Version tag for display in the app
+ARG VITE_VERSION_TAG
+ENV VITE_VERSION_TAG=$VITE_VERSION_TAG
 # Install deps (separate copy for better layer caching)
 COPY frontend/package*.json ./
 RUN npm install

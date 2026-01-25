@@ -77,8 +77,13 @@ const AppLayout = () => {
           ))}
         </div>
         <div style={{ marginTop: 'auto' }}>
+          {import.meta.env.VITE_VERSION_TAG && (
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              {import.meta.env.VITE_VERSION_TAG}
+            </p>
+          )}
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Signed in as</p>
-          <strong>{user?.displayName ?? 'Athlete'}</strong>
+          <strong style={{ display: 'block', marginBottom: '0.75rem' }}>{user?.displayName ?? 'Athlete'}</strong>
           <Button
             variant="secondary"
             className="mt-4 w-full"

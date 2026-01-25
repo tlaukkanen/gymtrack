@@ -40,33 +40,33 @@ const ProgramCard = ({
     : 'No completed workouts yet'
 
   return (
-    <Card className="card-muted">
-      <div className="section-header" style={{ alignItems: 'flex-start' }}>
-        <div>
-          <h4>{program.name}</h4>
-          {program.description && (
-            <p style={{ color: 'var(--text-muted)', marginTop: '0.3rem' }}>{program.description}</p>
-          )}
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            {program.exerciseCount} exercises • created {formatDate(program.createdAt)}
-          </p>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-            Total {formattedWeight} • {completionLabel}
-          </p>
-        </div>
-        <Button variant="ghost" startIcon={<Edit size={16} />} onClick={onEdit}>
-          Edit
-        </Button>
-        <Button
-          variant="ghost"
-          startIcon={<Trash size={16} />}
-          onClick={onDelete}
-          disabled={deletePending}
-        >
-          {deletePending ? 'Removing…' : 'Delete'}
-        </Button>
+    <Card className="card-muted" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div>
+        <h4>{program.name}</h4>
+        {program.description && (
+          <p style={{ color: 'var(--text-muted)', marginTop: '0.3rem' }}>{program.description}</p>
+        )}
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          {program.exerciseCount} exercises • created {formatDate(program.createdAt)}
+        </p>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+          Total {formattedWeight} • {completionLabel}
+        </p>
       </div>
-      <div className="field-row" style={{ marginTop: '1.25rem' }}>
+      <div style={{ marginTop: 'auto', paddingTop: '1.25rem' }}>
+        <div className="field-row" style={{ marginBottom: '0.75rem' }}>
+          <Button variant="ghost" startIcon={<Edit size={16} />} onClick={onEdit}>
+            Edit
+          </Button>
+          <Button
+            variant="ghost"
+            startIcon={<Trash size={16} />}
+            onClick={onDelete}
+            disabled={deletePending}
+          >
+            {deletePending ? 'Removing…' : 'Delete'}
+          </Button>
+        </div>
         <Button
           onClick={onStartSession}
           startIcon={<Play size={16} />}

@@ -369,10 +369,20 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         foreach (var pair in newExercise.Sets.Select((set, index) => (set, index)))
         {
             pair.set.SetIndex = pair.index + 1;
+            pair.set.CreatedAt = now;
+            pair.set.WorkoutSessionExerciseId = newExercise.Id;
         }
 
         session.Exercises.Add(newExercise);
         session.UpdatedAt = now;
+
+        // Explicitly mark new entities as Added to prevent EF Core from treating them as existing
+        // (due to ValueGeneratedOnAdd configuration on Id combined with pre-set Guid values)
+        _dbContext.Entry(newExercise).State = EntityState.Added;
+        foreach (var set in newExercise.Sets)
+        {
+            _dbContext.Entry(set).State = EntityState.Added;
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
