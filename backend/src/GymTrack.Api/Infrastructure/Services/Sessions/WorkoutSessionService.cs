@@ -366,6 +366,7 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         {
             pair.set.SetIndex = pair.index + 1;
             pair.set.CreatedAt = now;
+            pair.set.WorkoutSessionExerciseId = newExercise.Id;
         }
 
         session.Exercises.Add(newExercise);
