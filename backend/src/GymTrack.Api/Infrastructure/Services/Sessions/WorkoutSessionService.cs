@@ -372,6 +372,14 @@ internal sealed class WorkoutSessionService : IWorkoutSessionService
         session.Exercises.Add(newExercise);
         session.UpdatedAt = now;
 
+        // Explicitly mark new entities as Added to prevent EF Core from treating them as existing
+        // (due to ValueGeneratedOnAdd configuration on Id combined with pre-set Guid values)
+        _dbContext.Entry(newExercise).State = EntityState.Added;
+        foreach (var set in newExercise.Sets)
+        {
+            _dbContext.Entry(set).State = EntityState.Added;
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return await GetSessionAsync(userId, sessionId, cancellationToken);
