@@ -49,6 +49,18 @@ const DashboardPage = () => {
     return map
   }, [recentSessions])
 
+  const sortedPrograms = useMemo(() => {
+    if (!programs) return []
+    return [...programs].sort((a, b) => {
+      const aCompleted = latestSessionsByProgram.get(a.id)?.completedAt
+      const bCompleted = latestSessionsByProgram.get(b.id)?.completedAt
+      if (aCompleted && bCompleted) return new Date(bCompleted).getTime() - new Date(aCompleted).getTime()
+      if (aCompleted) return -1
+      if (bCompleted) return 1
+      return 0
+    })
+  }, [programs, latestSessionsByProgram])
+
   return (
     <div className="grid" style={{ gap: '1.5rem' }}>
       <div className="section-header">
@@ -73,7 +85,7 @@ const DashboardPage = () => {
           </Card>
         )}
         <div className="grid grid-2">
-          {programs?.map((program) => (
+          {sortedPrograms.map((program) => (
             <ProgramCard
               key={program.id}
               program={program}
