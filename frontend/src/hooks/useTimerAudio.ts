@@ -46,7 +46,7 @@ export const useTimerAudio = () => {
       oscillator.frequency.setValueAtTime(880, audioContext.currentTime) // A5 note
 
       // Set volume and fade out
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+      gainNode.gain.setValueAtTime(0.36, audioContext.currentTime)
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3)
 
       // Play beep
