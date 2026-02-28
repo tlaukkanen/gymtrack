@@ -77,15 +77,22 @@ export const useRestTimers = (options?: UseRestTimersOptions) => {
   }, [])
 
   const startTimer = useCallback((exerciseId: string, seconds: number) => {
-    setTimers((prev) => ({
-      ...prev,
-      [exerciseId]: {
+    setTimers((prev) => {
+      // Stop all other running timers - only one rest timer should be active at a time
+      const next: Record<string, InternalTimerState> = {}
+      Object.entries(prev).forEach(([key, state]) => {
+        if (key !== exerciseId) {
+          next[key] = state.isRunning ? { ...state, isRunning: false, expiresAt: undefined } : state
+        }
+      })
+      next[exerciseId] = {
         duration: seconds,
         remainingMs: seconds * 1000,
         isRunning: true,
         expiresAt: Date.now() + seconds * 1000,
-      },
-    }))
+      }
+      return next
+    })
   }, [])
 
   const pauseTimer = useCallback((exerciseId: string) => {
